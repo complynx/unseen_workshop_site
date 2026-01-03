@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UNSEEN — Blindfold Dance Workshop (Amsterdam)</title>
+  <meta name="description" content="UNSEEN — an invitation-only blindfold dance workshop in Amsterdam. 6 hours total, 3-hour silent blindfold block. Safety-first container." />
+
+  <!-- Optional: Google Fonts (swap if you prefer) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: "DSLogo";
+      src:
+        url("DSLogo.woff2") format("woff2");
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+    .dslogo {
+      font-family: "DSLogo";
+      font-weight: 300;
+      text-transform: uppercase;
+    }
+    :root{
+      --bg: #020001;           /* near-black from poster */
+      --panel: #070406;
+      --ink: #f3e7de;
+      --muted: rgba(243,231,222,.72);
+      --muted2: rgba(243,231,222,.52);
+
+      --accent: #f8751a;       /* neon orange */
+      --accent2: #c1321d;      /* deep red */
+      --accent3: #3f0f12;      /* darkest red */
+
+      --stroke: rgba(248,117,26,.38);
+      --stroke2: rgba(193,50,29,.38);
+
+      --shadow: 0 20px 60px rgba(0,0,0,.6);
+      --glow: 0 0 18px rgba(224,125,0,.26), 0 0 40px rgba(181,45,0,.30), 0 0 78px rgba(0,0,0,.38);
+
+      --card-bg: linear-gradient(150deg, rgba(248,117,26,.07) 0%, rgba(193,50,29,.05) 32%, rgba(7,4,6,.72) 100%);
+      --detail-bg: linear-gradient(145deg, rgba(248,117,26,.06) 0%, rgba(193,50,29,.05) 28%, rgba(7,4,6,.70) 100%);
+      --tag-bg: linear-gradient(135deg, rgba(193,50,29,.18) 0%, rgba(63,15,18,.14) 60%, rgba(7,3,5,.12) 100%);
+
+      --radius: 18px;
+      --max: 1040px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      background:
+        radial-gradient(1400px 760px at 50% 140px, rgba(248,117,26,.10) 0%, rgba(193,50,29,.08) 46%, rgba(7,3,5,0) 72%),
+        radial-gradient(1400px 900px at 50% 980px, rgba(193,50,29,.12) 0%, rgba(63,15,18,.10) 54%, rgba(5,2,3,0) 80%),
+        radial-gradient(1600px 1100px at 50% 1900px, rgba(63,15,18,.14) 0%, rgba(5,2,3,0) 78%),
+        var(--bg);
+      background-repeat: no-repeat;
+      color: var(--ink);
+      font-family: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .wrap{
+      width: min(var(--max), calc(100% - 44px));
+      margin: 0 auto;
+    }
+
+    /* Top nav */
+    header{
+      position: sticky;
+      top:0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      background:
+        linear-gradient(180deg, rgba(248,117,26,.08) 0%, rgba(193,50,29,.10) 26%, rgba(2,0,1,.82) 92%);
+      border-bottom: 1px solid rgba(193,50,29,.16);
+    }
+    .nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 0;
+      gap: 16px;
+    }
+    .brand{
+      display:flex;
+      align-items:baseline;
+      gap: 10px;
+      text-transform: uppercase;
+      font-family: "Sora", system-ui, sans-serif;
+      font-weight: 300;
+      font-size: 2em;
+    }
+    .brand .dot{
+      width: 8px; height:8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: var(--glow);
+      display:inline-block;
+      transform: translateY(-12px);
+    }
+    .navlinks{
+      display:flex;
+      gap: 14px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .navlinks a{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .navlinks a:hover{
+      border-color: rgba(248,117,26,.24);
+      color: var(--ink);
+    }
+
+    .cta{
+      display:flex; gap: 10px; align-items:center;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(248,117,26,.45);
+      background: rgba(7,4,6,.35);
+      color: var(--ink);
+      font-size: 14px;
+      transition: .18s ease;
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      white-space: nowrap;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 12px 2px rgba(224,125,0,.30),
+        0 0 34px 10px rgba(181, 9, 0, 0.36),
+        0 0 80px 16px rgba(0,0,0,.46);
+      border-color: rgba(248,117,26,.65);
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(248,117,26,.32) 0%, rgba(193,20,0,.26) 52%, rgba(63,0,0,.22) 100%);
+    }
+    .btn .arrow{
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Hero */
+    .hero{
+      padding: 52px 0 18px;
+      position: relative;
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap: 34px;
+      align-items: center;
+    }
+    .kicker{
+      color: rgba(248,117,26,.85);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-family: "Sora", system-ui, sans-serif;
+      font-weight: 300;
+      margin-bottom: 14px;
+    }
+
+    .title{
+      font-weight: 300;
+      text-transform: uppercase;
+      font-size: clamp(40px, 6vw, 72px);
+      margin: 0;
+      line-height: 1.02;
+    }
+    .title .glow{
+      color: var(--accent);
+      text-shadow: 0 0 22px rgba(248,117,26,.22), 0 0 60px rgba(248,117,26,.08);
+    }
+    .subtitle{
+      margin-top: 14px;
+      max-width: 54ch;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .metaRow{
+      margin-top: 18px;
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px 12px;
+      color: var(--muted2);
+      font-size: 14px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(248,117,26,.18);
+      background: linear-gradient(135deg, rgba(248,117,26,.05) 0%, rgba(193,50,29,.05) 26%, rgba(7,4,6,.34) 100%);
+    }
+    .pill b{ color: var(--ink); font-weight: 500; }
+
+    .badges{
+      display:flex;
+      gap: 18px;
+      margin-top: 22px;
+      flex-wrap: wrap;
+    }
+
+    /* Poster image card */
+    .posterCard{
+      position: relative;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(248,117,26,.16);
+      background: rgba(7,4,6,.35);
+      box-shadow: var(--shadow);
+    }
+    .posterCard:before{
+      content:"";
+      position:absolute;
+      inset:-90px -140px auto -140px;
+      height: 280px;
+      background: radial-gradient(circle at 50% 50%, rgba(248,117,26,.26) 0%, rgba(193,50,29,.18) 48%, rgba(7,3,5,0) 70%);
+      pointer-events:none;
+      filter: blur(10px);
+    }
+    .posterCard img{
+      width: 100%;
+      height: auto;
+      display:block;
+      opacity: .95;
+    }
+
+    /* Sections */
+    section{
+      padding: 38px 0;
+    }
+    .sectionHead{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    h2{
+      margin:0;
+      font-size: 22px;
+      font-family: "Sora", system-ui, sans-serif;
+      font-weight: 300;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .line{
+      flex:1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(248,117,26,.48), rgba(193,50,29,.26) 48%, rgba(63,15,18,.08));
+      transform: translateY(-10px);
+    }
+    .sectionNote{
+      color: var(--muted2);
+      font-size: 14px;
+      max-width: 52ch;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .card{
+      border-radius: var(--radius);
+      border: 1px solid rgba(248,117,26,.16);
+      background: var(--card-bg);
+      padding: 18px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+    }
+    .card h3{
+      margin: 0 0 10px;
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(248,117,26,.85);
+    }
+    .card p{ margin: 0 0 10px; color: var(--muted); }
+    .card ul{ margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
+    .card li{ margin: 8px 0; }
+
+    .tagRow{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .tag{
+      font-size: 12px;
+      color: rgba(243,231,222,.78);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(193,50,29,.28);
+      background: var(--tag-bg);
+    }
+
+    /* Details (accordion) */
+    details{
+      border-radius: var(--radius);
+      border: 1px solid rgba(248,117,26,.16);
+      background: var(--detail-bg);
+      padding: 14px 16px;
+      margin: 10px 0;
+    }
+    summary{
+      cursor: pointer;
+      list-style: none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 14px;
+      color: rgba(248,117,26,.86);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 13px;
+      user-select:none;
+    }
+    summary::-webkit-details-marker { display:none; }
+    .chev{
+      color: rgba(248,117,26,.9);
+      transition: transform .18s ease;
+      font-size: 16px;
+    }
+    details[open] .chev{ transform: rotate(90deg); }
+    details .content{
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .content ul{ margin: 10px 0 0; padding-left: 18px; }
+    .content li{ margin: 8px 0; }
+
+    /* Apply */
+    .applyGrid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+      align-items: start;
+    }
+    form{
+      display:grid;
+      gap: 12px;
+    }
+    label{
+      font-size: 12px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      font-family: "Sora", system-ui, sans-serif;
+      font-weight: 300;
+    }
+    input, textarea, select{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(248,117,26,.18);
+      background: rgba(2,0,1,.55);
+      color: var(--ink);
+      outline: none;
+    }
+    textarea{ min-height: 110px; resize: vertical; }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(248,117,26,.55);
+      box-shadow: 0 0 0 4px rgba(248,117,26,.10);
+    }
+    .formRow{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .fineprint{
+      color: var(--muted2);
+      font-size: 13px;
+    }
+    .fineprint a{
+      color: rgba(248,117,26,.85);
+      border-bottom: 1px dashed rgba(248,117,26,.35);
+    }
+
+    footer{
+      padding: 34px 0 54px;
+      color: var(--muted2);
+      border-top: 1px solid rgba(248,117,26,.12);
+      margin-top: 16px;
+    }
+    .footGrid{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      body{
+        background:
+          radial-gradient(1200px 640px at 50% 120px, rgba(248,117,26,.10) 0%, rgba(193,50,29,.08) 46%, rgba(7,3,5,0) 72%),
+          radial-gradient(1200px 780px at 50% 820px, rgba(193,50,29,.12) 0%, rgba(63,15,18,.10) 54%, rgba(5,2,3,0) 80%),
+          radial-gradient(1400px 920px at 50% 1550px, rgba(63,15,18,.14) 0%, rgba(5,2,3,0) 78%),
+          var(--bg);
+        background-repeat: no-repeat;
+      }
+      .heroGrid{ grid-template-columns: 1fr; }
+      .posterCard{ order: -1; }
+      .grid2{ grid-template-columns: 1fr; }
+      .applyGrid{ grid-template-columns: 1fr; }
+      .navlinks{ display:none; }
+    }
+    @media (max-width: 520px){
+      .circleBadge{ width: 146px; height: 146px; }
+      .formRow{ grid-template-columns: 1fr; }
+      .pill{ width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <span class="dot"></span>
+          <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
+        </div>
+
+        <nav class="navlinks" aria-label="Sections">
+          <a href="#about">About</a>
+          <a href="#format">Format</a>
+          <a href="#safety">Safety</a>
+          <a href="#tickets">Tickets</a>
+          <a href="#apply">Apply</a>
+        </nav>
+
+        <div class="cta">
+          <a class="btn" href="#tickets">Pricing</a>
+          <a class="btn primary" href="#apply">
+            Apply <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="wrap">
+        <div class="heroGrid">
+          <div>
+            <div class="kicker">Amsterdam • Sat 21 February 2026 • Invitation-only</div>
+            <h1 class="title dslogo">
+              <span class="glow">U<span style="margin-left:-0.14em">NSEEN</span></span>
+            </h1>
+            <p class="subtitle">
+              A blindfolded partner-dance experience designed for the Zouk community.
+              Six hours total, culminating in a <b>3-hour silent blindfold block</b>.
+              Pattern-breaking, deeper sensing, and meeting people anew — inside a firm, safety-first container.
+            </p>
+
+            <div class="metaRow">
+              <div class="pill"><b>Time window</b> ~11:00–20:00 (+ debrief)</div>
+              <div class="pill"><b>Capacity</b> 32 (16L / 16F)</div>
+              <div class="pill"><b>Team</b> 4–5</div>
+              <div class="pill"><b>Venue</b> announced by 15 Feb (confirmed only)</div>
+            </div>
+
+            <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn primary" href="#apply">Apply for invitation <span class="arrow">→</span></a>
+              <a class="btn" href="#safety">Read safety rules</a>
+            </div>
+
+            <p class="fineprint" style="margin-top:14px;">
+              Blindfolds are <b>included</b> in your pass<br>&nbsp;— brand new, long-wear, and yours to keep as a <b>souvenir</b>.
+            </p>
+          </div>
+
+          <div class="posterCard" aria-label="Poster image">
+            <!-- Replace with your file path if needed -->
+            <img src="dark_sense.png" alt="UNSEEN poster artwork (blindfolded couple)" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="wrap">
+        <div class="sectionHead">
+          <h2>About</h2>
+          <div class="line"></div>
+          <div class="sectionNote">
+            Built for connection through different senses — without relying on your usual patterns.
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>What it is</h3>
+            <p>
+              A guided workshop that gradually trains safe blindfold dancing — then moves into a long silent
+              block where the experience becomes deep, minimal, and focused.
+            </p>
+            <div class="tagRow">
+              <span class="tag">connection</span>
+              <span class="tag">pattern-breaking</span>
+              <span class="tag">sensory awareness</span>
+              <span class="tag">close embrace</span>
+              <span class="tag">safety-first</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Who it’s for</h3>
+            <ul>
+              <li>Zouk dancers from <b>improver+</b> (below intermediate may find it challenging).</li>
+              <li>Trusted multi-dance participants may be invited case-by-case.</li>
+              <li>Solo registrations are welcome (rotation is part of the format).</li>
+              <li><b>18+ only.</b></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMAT -->
+    <section id="format">
+      <div class="wrap">
+        <div class="sectionHead">
+          <h2>Format</h2>
+          <div class="line"></div>
+          <div class="sectionNote">
+            Two parts. Training first. Then the silent blindfold block.
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>Part 1 — Preparation (≈3h)</h3>
+            <ul>
+              <li>Warm-up, grounding, and sensory orientation</li>
+              <li>Close-embrace safety & boundaries (shown and practiced)</li>
+              <li>Safety without sight: collisions, touch, exploration</li>
+              <li>Gradual accommodation to blindfolds</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Part 2 — Silent Block (≈3h)</h3>
+            <ul>
+              <li>Blindfolded, <b>no participant talking</b> (safety exceptions exist)</li>
+              <li>Rotation + moments of anonymity</li>
+              <li>Exploration of new senses and connections</li>
+              <li>Closing debrief & grounding afterwards</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAFETY -->
+    <section id="safety">
+      <div class="wrap">
+        <div class="sectionHead">
+          <h2>Safety & Consent</h2>
+          <div class="line"></div>
+          <div class="sectionNote">
+            Respected boundaries. Practiced signals. Clear rules. Safety overrides everything.
+          </div>
+        </div>
+
+        <details>
+          <summary>Consent baseline <span class="chev">›</span></summary>
+          <div class="content">
+            <ul>
+              <li>
+                <b>No intimate touch, no surprises, no testing boundaries.</b>
+                Everything stays within socially appropriate close-embrace partner-dance boundaries.</li>
+              <li><b>No romantic escalation.</b> No kissing, sexual comments, whispering, or “going beyond dancing”.</li>
+              <li>No-go zones are explicitly listed, shown, and repeated before the Silent Block.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Yellow / Red system (practiced) <span class="chev">›</span></summary>
+          <div class="content">
+            <ul>
+              <li><b>Yellow:</b> reduce intensity / slow down / increase space.</li>
+              <li><b>Red:</b> full stop — freeze and give space immediately.</li>
+              <li>No explanation needed. Team actively monitor and can step in.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Touch boundaries (what’s allowed) <span class="chev">›</span></summary>
+          <div class="content">
+            <p>
+              Close embrace is part of the format. Within defined limits (shown visually), the workshop may include:
+            </p>
+            <ul>
+              <li>Body waves (frame-based and open-position waves)</li>
+              <li>Chest-to-chest contact and kizomba-style hip contact <b>within demonstrated boundaries</b></li>
+            </ul>
+            <p style="margin-top:10px;">
+              Not allowed: no-go zones, breathing in ears, kissing, or any exploratory hand placement outside
+              instructed contact points.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Movement rules (blindfold part) <span class="chev">›</span></summary>
+          <div class="content">
+            <ul>
+              <li>No lifts. No dips. No broad movements.</li>
+              <li><b>Head movement is minimal and strictly guided</b> — no fast or large-range head motions.</li>
+              <li>Traveling is allowed only when safe for the exercise; The team may stop risky movement immediately.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>The Silent Block rule (blindfolds) <span class="chev">›</span></summary>
+          <div class="content">
+            <p><b>Blindfolds stay on in the dance space at all times</b> during the Silent Block.</p>
+            <p>
+              If you need water, restroom, or support, raise your hand and a Team member will escort you to a
+              <b>private safe area</b>
+              (separate from the dance space). In the safe area, you may remove the blindfold if needed.
+            </p>
+            <p>
+              Returning to the Silent Block is <b>usually possible</b>, but may be declined if safety or
+              container integrity requires it (e.g., medical concern, repeated distress, not
+              following instructions, disruptive behavior, or safety risk to self/others).
+            </p>
+            <p>
+              If return is declined, you can rest in a chill area and may be allowed to
+              join the final debrief. <b>No refunds</b> apply in this case.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Signals (silent block) <span class="chev">›</span></summary>
+          <div class="content">
+            <ul>
+              <li><b>Stop with partner:</b> trained hand squeeze → freeze + give space.</li>
+              <li><b>Call a team member:</b> raise your hand (team members are trained to notice quickly).</li>
+              <li><b>Audible exception:</b> if absolutely necessary, a short audible call is allowed to get
+                 help. Safety overrides silence.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Hygiene & sobriety <span class="chev">›</span></summary>
+          <div class="content">
+            <ul>
+              <li><b>Please come sober.</b> No alcohol or recreational drugs before or during the workshop.</li>
+              <li>Perfume discouraged (odorless antiperspirant is fine). Shower recommended.</li>
+              <li>Fresh shirt strongly recommended.</li>
+              <li>No rings/jewelry/watches; short nails recommended.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- TICKETS -->
+    <section id="tickets">
+      <div class="wrap">
+        <div class="sectionHead">
+          <h2>Tickets</h2>
+          <div class="line"></div>
+          <div class="sectionNote">
+            Invitation-only. Strict parity. Small container.
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>Pricing</h3>
+            <ul>
+              <li><b>€60</b> Early Bird (until <b>20 Jan</b>)</li>
+              <li><b>€75</b> Regular</li>
+              <li>Registration closes <b>15 Feb</b></li>
+            </ul>
+            <p style="margin-top:10px;">Payment: primarily Tikkie / SEPA (other options can be arranged case-by-case).</p>
+          </div>
+
+          <div class="card">
+            <h3>Refund policy</h3>
+            <ul>
+              <li>Full refund until <b>15 Jan</b></li>
+              <li>50% refund until <b>1 Feb</b></li>
+              <li>No refunds after that</li>
+            </ul>
+            <p style="margin-top:10px;">
+              Sick? Please don’t come. A flexible proof (positive test / pharmacy receipt / medical provider message)
+              may allow partial refund, case-by-case.
+            </p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px;">
+          <h3>Photos / video</h3>
+          <p>
+            No recording during the blindfolded Silent Block. Photos/videos may happen
+            in Part 1 and the debrief (opt-out available).
+            Request removal via message within <b>24 hours</b> after the workshop.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPLY -->
+    <section id="apply">
+      <div class="wrap">
+        <div class="sectionHead">
+          <h2>Apply</h2>
+          <div class="line"></div>
+          <div class="sectionNote">
+            Apply → get approved/invited → pay → confirmed → can invite others.
+          </div>
+        </div>
+
+        <div class="applyGrid">
+          <div class="card">
+            <h3>Application form</h3>
+
+            <!-- This form is frontend-only. Replace action with your endpoint or embed your platform. -->
+            <form id="applyForm">
+              <div class="formRow">
+                <div>
+                  <label for="first_name">First name</label>
+                  <input id="first_name" name="first_name" autocomplete="first_name" required />
+                </div>
+                <div>
+                  <label for="last_name">Last name</label>
+                  <input id="last_name" name="last_name" autocomplete="last_name" required />
+                </div>
+                <div>
+                  <label for="email">Email</label>
+                  <input id="email" name="email" type="email" autocomplete="email" required />
+                </div>
+                <div>
+                  <label for="phone">Phone</label>
+                  <input id="phone" name="phone" type="tel" autocomplete="tel" required />
+                </div>
+              </div>
+
+              <div class="formRow">
+                <div>
+                  <label for="role">Role</label>
+                  <select id="role" name="role" required>
+                    <option value="" selected disabled>Select…</option>
+                    <option>Leader</option>
+                    <option>Follower</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="level">Level</label>
+                  <select id="level" name="level" required>
+                    <option value="" selected disabled>Select…</option>
+                    <option>Basic</option>
+                    <option>Improver</option>
+                    <option>Intermediate</option>
+                    <option>Advanced</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label for="aboutYou">Short note (experience / where we know you from)</label>
+                <textarea id="aboutYou" name="aboutYou" placeholder="A few lines help us keep the container safe and aligned."></textarea>
+              </div>
+
+              <div>
+                <label>
+                  <input type="checkbox" required />
+                  I accept the workshop rules and Code of Conduct (safety-first, blindfold rules, sober policy).
+                </label>
+              </div>
+
+              <div>
+                <label for="emergency">Emergency contact (optional)</label>
+                <input id="emergency" name="emergency" placeholder="Name + phone (optional)" />
+              </div>
+
+              <button class="btn primary" type="submit">Submit application <span class="arrow">→</span></button>
+              <div class="fineprint">
+                Venue + exact address will be shared with confirmed participants no later than <b>15 Feb 2026</b>.
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Facilitators</h3>
+            <p><b>Daniel Drizhuk (DJ Touchzouk)</b> — 20 years in social dancing, 11 years in Zouk,
+              11 years with this workshop format.</p>
+            <p><b>Jill Medina</b> — artistically guiding movement, regulation, and somatic
+              exploration through release, stretch, and motion.</p>
+            <p><b>Anna Atman</b> — psychologist and coach with 10 years zouk experience.</p>
+            <p class="fineprint">
+              One or two more members to be announced.
+            </p>
+
+            <div style="height:14px;">&nbsp;</div>
+
+            <h3>Rotation & pairing note</h3>
+            <p>
+              Rotation is part of the format.
+              If you need a confidential “do not pair me with X” note,
+              you can submit it at any time (including on-site).
+              No questions asked; rotations will be adjusted.
+            </p>
+            <p>
+              However, we recommend not to do it unless strictly necessary,
+              as part of the experience is to perceive everything and everyone from
+              a fresh perspective.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <div class="footGrid">
+          <div>© 2026 Touchzouk • Amsterdam</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn" href="#safety">Safety</a>
+            <a class="btn" href="#apply">Apply</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Frontend-only demo submission (replace with your backend or form provider)
+    document.getElementById("applyForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      alert("Application submitted (demo). Replace this with your real form handler.");
+    });
+  </script>
+</body>
+</html>
