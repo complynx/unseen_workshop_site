@@ -10,431 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <style>
-    @font-face {
-      font-family: "DSLogo";
-      src:
-        url("DSLogo.woff2") format("woff2");
-      font-weight: 300;
-      font-style: normal;
-      font-display: swap;
-    }
-    .dslogo {
-      font-family: "DSLogo";
-      font-weight: 300;
-      text-transform: uppercase;
-    }
-    :root{
-      --bg: #020001;           /* near-black from poster */
-      --panel: #070406;
-      --ink: #f3e7de;
-      --muted: rgba(243,231,222,.72);
-      --muted2: rgba(243,231,222,.52);
-
-      --accent: #f8751a;       /* neon orange */
-      --accent2: #c1321d;      /* deep red */
-      --accent3: #3f0f12;      /* darkest red */
-
-      --stroke: rgba(248,117,26,.38);
-      --stroke2: rgba(193,50,29,.38);
-
-      --shadow: 0 20px 60px rgba(0,0,0,.6);
-      --glow: 0 0 18px rgba(224,125,0,.26), 0 0 40px rgba(181,45,0,.30), 0 0 78px rgba(0,0,0,.38);
-
-      --card-bg: linear-gradient(150deg, rgba(248,117,26,.07) 0%, rgba(193,50,29,.05) 32%, rgba(7,4,6,.72) 100%);
-      --detail-bg: linear-gradient(145deg, rgba(248,117,26,.06) 0%, rgba(193,50,29,.05) 28%, rgba(7,4,6,.70) 100%);
-      --tag-bg: linear-gradient(135deg, rgba(193,50,29,.18) 0%, rgba(63,15,18,.14) 60%, rgba(7,3,5,.12) 100%);
-
-      --radius: 18px;
-      --max: 1040px;
-    }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin:0;
-      background:
-        radial-gradient(1400px 760px at 50% 140px, rgba(248,117,26,.10) 0%, rgba(193,50,29,.08) 46%, rgba(7,3,5,0) 72%),
-        radial-gradient(1400px 900px at 50% 980px, rgba(193,50,29,.12) 0%, rgba(63,15,18,.10) 54%, rgba(5,2,3,0) 80%),
-        radial-gradient(1600px 1100px at 50% 1900px, rgba(63,15,18,.14) 0%, rgba(5,2,3,0) 78%),
-        var(--bg);
-      background-repeat: no-repeat;
-      color: var(--ink);
-      font-family: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      line-height: 1.45;
-      overflow-x: hidden;
-    }
-
-    a { color: inherit; text-decoration: none; }
-    .wrap{
-      width: min(var(--max), calc(100% - 44px));
-      margin: 0 auto;
-    }
-
-    /* Top nav */
-    header{
-      position: sticky;
-      top:0;
-      z-index: 20;
-      backdrop-filter: blur(10px);
-      background:
-        linear-gradient(180deg, rgba(248,117,26,.08) 0%, rgba(193,50,29,.10) 26%, rgba(2,0,1,.82) 92%);
-      border-bottom: 1px solid rgba(193,50,29,.16);
-    }
-    .nav{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding: 14px 0;
-      gap: 16px;
-    }
-    .brand{
-      display:flex;
-      align-items:baseline;
-      gap: 10px;
-      text-transform: uppercase;
-      font-family: "Sora", system-ui, sans-serif;
-      font-weight: 300;
-      font-size: 2em;
-    }
-    .brand .dot{
-      width: 8px; height:8px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: var(--glow);
-      display:inline-block;
-      transform: translateY(-12px);
-    }
-    .navlinks{
-      display:flex;
-      gap: 14px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-    .navlinks a{
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid transparent;
-    }
-    .navlinks a:hover{
-      border-color: rgba(248,117,26,.24);
-      color: var(--ink);
-    }
-
-    .cta{
-      display:flex; gap: 10px; align-items:center;
-    }
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(248,117,26,.45);
-      background: rgba(7,4,6,.35);
-      color: var(--ink);
-      font-size: 14px;
-      transition: .18s ease;
-      box-shadow: 0 0 0 rgba(0,0,0,0);
-      white-space: nowrap;
-    }
-    .btn:hover{
-      transform: translateY(-1px);
-      box-shadow:
-        0 0 12px 2px rgba(224,125,0,.30),
-        0 0 34px 10px rgba(181, 9, 0, 0.36),
-        0 0 80px 16px rgba(0,0,0,.46);
-      border-color: rgba(248,117,26,.65);
-    }
-    .btn.primary{
-      background: linear-gradient(135deg, rgba(248,117,26,.32) 0%, rgba(193,20,0,.26) 52%, rgba(63,0,0,.22) 100%);
-    }
-    .btn .arrow{
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    /* Hero */
-    .hero{
-      padding: 52px 0 18px;
-      position: relative;
-    }
-    .heroGrid{
-      display:grid;
-      grid-template-columns: 1.25fr .95fr;
-      gap: 34px;
-      align-items: center;
-    }
-    .kicker{
-      color: rgba(248,117,26,.85);
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      font-size: 12px;
-      font-family: "Sora", system-ui, sans-serif;
-      font-weight: 300;
-      margin-bottom: 14px;
-    }
-
-    .title{
-      font-weight: 300;
-      text-transform: uppercase;
-      font-size: clamp(40px, 6vw, 72px);
-      margin: 0;
-      line-height: 1.02;
-    }
-    .title .glow{
-      color: var(--accent);
-      text-shadow: 0 0 22px rgba(248,117,26,.22), 0 0 60px rgba(248,117,26,.08);
-    }
-    .subtitle{
-      margin-top: 14px;
-      max-width: 54ch;
-      color: var(--muted);
-      font-size: 16px;
-    }
-
-    .metaRow{
-      margin-top: 18px;
-      display:flex;
-      flex-wrap: wrap;
-      gap: 10px 12px;
-      color: var(--muted2);
-      font-size: 14px;
-    }
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(248,117,26,.18);
-      background: linear-gradient(135deg, rgba(248,117,26,.05) 0%, rgba(193,50,29,.05) 26%, rgba(7,4,6,.34) 100%);
-    }
-    .pill b{ color: var(--ink); font-weight: 500; }
-
-    .badges{
-      display:flex;
-      gap: 18px;
-      margin-top: 22px;
-      flex-wrap: wrap;
-    }
-
-    /* Poster image card */
-    .posterCard{
-      position: relative;
-      border-radius: 26px;
-      overflow: hidden;
-      border: 1px solid rgba(248,117,26,.16);
-      background: rgba(7,4,6,.35);
-      box-shadow: var(--shadow);
-    }
-    .posterCard:before{
-      content:"";
-      position:absolute;
-      inset:-90px -140px auto -140px;
-      height: 280px;
-      background: radial-gradient(circle at 50% 50%, rgba(248,117,26,.26) 0%, rgba(193,50,29,.18) 48%, rgba(7,3,5,0) 70%);
-      pointer-events:none;
-      filter: blur(10px);
-    }
-    .posterCard img{
-      width: 100%;
-      height: auto;
-      display:block;
-      opacity: .95;
-    }
-
-    /* Sections */
-    section{
-      padding: 38px 0;
-    }
-    .sectionHead{
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-    h2{
-      margin:0;
-      font-size: 22px;
-      font-family: "Sora", system-ui, sans-serif;
-      font-weight: 300;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-    .line{
-      flex:1;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(248,117,26,.48), rgba(193,50,29,.26) 48%, rgba(63,15,18,.08));
-      transform: translateY(-10px);
-    }
-    .sectionNote{
-      color: var(--muted2);
-      font-size: 14px;
-      max-width: 52ch;
-    }
-
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-    .card{
-      border-radius: var(--radius);
-      border: 1px solid rgba(248,117,26,.16);
-      background: var(--card-bg);
-      padding: 18px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
-    }
-    .card h3{
-      margin: 0 0 10px;
-      font-weight: 500;
-      font-size: 16px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: rgba(248,117,26,.85);
-    }
-    .card p{ margin: 0 0 10px; color: var(--muted); }
-    .card ul{ margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
-    .card li{ margin: 8px 0; }
-
-    .tagRow{
-      display:flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .tag{
-      font-size: 12px;
-      color: rgba(243,231,222,.78);
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(193,50,29,.28);
-      background: var(--tag-bg);
-    }
-
-    /* Details (accordion) */
-    details{
-      border-radius: var(--radius);
-      border: 1px solid rgba(248,117,26,.16);
-      background: var(--detail-bg);
-      padding: 14px 16px;
-      margin: 10px 0;
-    }
-    summary{
-      cursor: pointer;
-      list-style: none;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 14px;
-      color: rgba(248,117,26,.86);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      font-size: 13px;
-      user-select:none;
-    }
-    summary::-webkit-details-marker { display:none; }
-    .chev{
-      color: rgba(248,117,26,.9);
-      transition: transform .18s ease;
-      font-size: 16px;
-    }
-    details[open] .chev{ transform: rotate(90deg); }
-    details .content{
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .content ul{ margin: 10px 0 0; padding-left: 18px; }
-    .content li{ margin: 8px 0; }
-
-    /* Apply */
-    .applyGrid{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 18px;
-      align-items: start;
-    }
-    form{
-      display:grid;
-      gap: 12px;
-    }
-    label{
-      font-size: 12px;
-      letter-spacing: .10em;
-      text-transform: uppercase;
-      color: var(--muted2);
-      font-family: "Sora", system-ui, sans-serif;
-      font-weight: 300;
-    }
-    input, textarea, select{
-      width: 100%;
-      padding: 12px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(248,117,26,.18);
-      background: rgba(2,0,1,.55);
-      color: var(--ink);
-      outline: none;
-    }
-    textarea{ min-height: 110px; resize: vertical; }
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(248,117,26,.55);
-      box-shadow: 0 0 0 4px rgba(248,117,26,.10);
-    }
-    .formRow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .fineprint{
-      color: var(--muted2);
-      font-size: 13px;
-    }
-    .fineprint a{
-      color: rgba(248,117,26,.85);
-      border-bottom: 1px dashed rgba(248,117,26,.35);
-    }
-
-    footer{
-      padding: 34px 0 54px;
-      color: var(--muted2);
-      border-top: 1px solid rgba(248,117,26,.12);
-      margin-top: 16px;
-    }
-    .footGrid{
-      display:flex;
-      flex-wrap: wrap;
-      gap: 12px 18px;
-      align-items:center;
-      justify-content:space-between;
-    }
-
-    /* Responsive */
-    @media (max-width: 980px){
-      body{
-        background:
-          radial-gradient(1200px 640px at 50% 120px, rgba(248,117,26,.10) 0%, rgba(193,50,29,.08) 46%, rgba(7,3,5,0) 72%),
-          radial-gradient(1200px 780px at 50% 820px, rgba(193,50,29,.12) 0%, rgba(63,15,18,.10) 54%, rgba(5,2,3,0) 80%),
-          radial-gradient(1400px 920px at 50% 1550px, rgba(63,15,18,.14) 0%, rgba(5,2,3,0) 78%),
-          var(--bg);
-        background-repeat: no-repeat;
-      }
-      .heroGrid{ grid-template-columns: 1fr; }
-      .posterCard{ order: -1; }
-      .grid2{ grid-template-columns: 1fr; }
-      .applyGrid{ grid-template-columns: 1fr; }
-      .navlinks{ display:none; }
-    }
-    @media (max-width: 520px){
-      .circleBadge{ width: 146px; height: 146px; }
-      .formRow{ grid-template-columns: 1fr; }
-      .pill{ width: 100%; justify-content: space-between; }
-    }
-  </style>
+  <link rel="stylesheet" href="unseen.css">
 </head>
 
 <body>
@@ -449,7 +25,9 @@
         <nav class="navlinks" aria-label="Sections">
           <a href="#about">About</a>
           <a href="#format">Format</a>
+          <a href="#team">Team</a>
           <a href="#safety">Safety</a>
+          <a href="#qa">Q&A</a>
           <a href="#tickets">Tickets</a>
           <a href="#apply">Apply</a>
         </nav>
@@ -488,7 +66,7 @@
             </div>
 
             <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
-              <a class="btn primary" href="#apply">Apply for invitation <span class="arrow">→</span></a>
+              <a class="btn primary" href="#apply">Invitation process <span class="arrow">→</span></a>
               <a class="btn" href="#safety">Read safety rules</a>
             </div>
 
@@ -573,6 +151,49 @@
               <li>Rotation + moments of anonymity</li>
               <li>Exploration of new senses and connections</li>
               <li>Closing debrief & grounding afterwards</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section id="team">
+      <div class="wrap">
+        <div class="sectionHead">
+          <h2>Facilitators & Rotation</h2>
+          <div class="line"></div>
+          <div class="sectionNote">
+            Who holds the container and how we handle pairing inside the blindfold format.
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <h3>Facilitators</h3>
+            <p><b><a href="https://touchzo.uk" target="_blank" rel="noopener noreferrer">Daniel Drizhuk (DJ Touchzouk)</a></b> — 20 years in social dancing, 11 years in Zouk,
+              11 years with this workshop format.</p>
+            <p><b><a href="https://www.instagram.com/passion_n_dance" target="_blank" rel="noopener noreferrer">Jill Medina</a></b> — artistically guiding movement, regulation, and somatic
+              exploration through release, stretch, and motion.</p>
+            <p><b><a href="https://www.instagram.com/atmananna/" target="_blank" rel="noopener noreferrer">Anna Atman</a></b> — psychologist and coach with 10 years zouk experience.</p>
+            <p class="fineprint">
+              One or two more members to be announced.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Rotation & pairing</h3>
+            <ul>
+              <li>Rotation runs through both parts, solo signups are standard.</li>
+              <li>
+                Confidential “do not pair me with X” notes can be submitted at any time — no questions asked,
+                rotations will be adjusted.
+              </li>
+              <li>
+                However, we recommend not to do it unless strictly necessary,
+                as part of the experience is to perceive everything and everyone from
+                a fresh perspective.
+              </li>
             </ul>
           </div>
         </div>
@@ -689,6 +310,98 @@
       </div>
     </section>
 
+    <!-- Q&A -->
+    <section id="qa">
+      <div class="wrap">
+        <div class="sectionHead">
+          <h2>Q&A</h2>
+          <div class="line"></div>
+        <div class="sectionNote">
+            All the necessary questions answered.
+          </div>
+        </div>
+
+        <details>
+          <summary>Open to read the full Q&A <span class="chev">›</span></summary>
+          <div class="content">
+            <ul class="qaList">
+              <li><span class="qa-q">Q: When and where is it?</span><span class="qa-a">A: Saturday 21 February 2026, Amsterdam. Time window is approximately 11:00–20:00, plus a closing debrief and grounding. The exact venue/address will be shared with confirmed participants only, no later than 15 February 2026.</span></li>
+              <li><span class="qa-q">Q: Why is the venue shared only with confirmed participants?</span><span class="qa-a">A: For participant safety and because the final venue is still being selected to optimize floor quality, space, ventilation, and location.</span></li>
+              <li><span class="qa-q">Q: How long is the workshop and how is it structured?</span><span class="qa-a">A: About 6 hours total, split into two ~3-hour sections:</span>
+                <ol>
+                  <li>Preparation & training (signals, boundaries, safe blindfold dancing)</li>
+                  <li>The 3-hour Silent Blindfold Block (no participant talking; safety exceptions exist), followed by a debrief/grounding.</li>
+                </ol>
+              </li>
+              <li><span class="qa-q">Q: Is there a break?</span><span class="qa-a">A: Yes—one main break between the two sections. The first part is also more flexible for quick step-outs if needed.</span></li>
+              <li><span class="qa-q">Q: Who is this workshop for?</span><span class="qa-a">A: Primarily for the Zouk community (improver+). It can be challenging for dancers below intermediate. Trusted, highly skilled dancers from other couple dances may be invited case-by-case.</span></li>
+              <li><span class="qa-q">Q: Can I join if I’ve never danced blindfolded?</span><span class="qa-a">A: Yes. The first part includes gradual accommodation and safety training. If you have a known strong fear of darkness or blindfolding, this workshop may not be suitable.</span></li>
+              <li><span class="qa-q">Q: Is it okay if I’m anxious about blindfolding?</span><span class="qa-a">A: Many people are. Safety measures, clear rules, and instructed team are present to support you. If unexpected anxiety arises during the workshop, the team will help.</span></li>
+              <li><span class="qa-q">Q: Is it okay if I know in advance I can’t stay blindfolded for 3 hours?</span><span class="qa-a">A: If you already know you won’t be able to stay in the Silent Block for the full duration, it’s recommended not to join.</span></li>
+              <li><span class="qa-q">Q: Is it invitation-only?</span><span class="qa-a">A: Yes. No one can buy a ticket without an invitation.</span></li>
+              <li><span class="qa-q">Q: What is the registration flow?</span><span class="qa-a">A: Get invited → fill the registration form → pay → confirmed → can invite others. Invitations are reviewed to maintain safety, trust, and role parity.</span></li>
+              <li><span class="qa-q">Q: Can organizers decline an invite?</span><span class="qa-a">A: Yes. Organizers may decline when necessary (safety, trust, role parity, or container integrity). Unusual cases are handled individually.</span></li>
+              <li><span class="qa-q">Q: Is there an age limit?</span><span class="qa-a">A: Yes—18+ only.</span></li>
+              <li><span class="qa-q">Q: Can I register solo?</span><span class="qa-a">A: Yes. Solo registration is welcome.</span></li>
+              <li><span class="qa-q">Q: Can I register with a partner?</span><span class="qa-a">A: Yes. Add a note about your partner in the registration form; we will try to add you both if spots allow, or tell you otherwise.</span></li>
+              <li><span class="qa-q">Q: Will there be partner rotation?</span><span class="qa-a">A: Yes—rotation is frequent and part of the format, including moments where you may not know who you’re dancing with.</span></li>
+              <li><span class="qa-q">Q: Can I opt out of rotation?</span><span class="qa-a">A: No. Rotation is integral to the workshop design.</span></li>
+              <li><span class="qa-q">Q: Is there any way to avoid dancing with a specific person?</span><span class="qa-a">A: Yes. You can confidentially submit a “do not pair me with X” request for personal reasons—no questions asked. Rotations will be adjusted to satisfy constraints. We still encourage you to try seeing everyone from a fresh perspective in this safe space.</span></li>
+              <li><span class="qa-q">Q: When should I submit a “do not pair” request?</span><span class="qa-a">A: Preferably as soon as the participant list is published, but it can also be submitted at the venue.</span></li>
+              <li><span class="qa-q">Q: Will my “do not pair” request be confidential?</span><span class="qa-a">A: Yes. It is handled confidentially.</span></li>
+              <li><span class="qa-q">Q: What if multiple “do not pair” requests create rotation issues?</span><span class="qa-a">A: Rotations will be adjusted to satisfy the constraints.</span></li>
+              <li><span class="qa-q">Q: Are roles fixed (Leader/Follower)?</span><span class="qa-a">A: Yes. The workshop uses fixed Leader/Follower roles for structure and safety, with strict parity.</span></li>
+              <li><span class="qa-q">Q: Can I switch roles?</span><span class="qa-a">A: Role changes are limited. Some exercises may include brief role swaps when the exercise dictates it, and participants are encouraged to follow the exercise for safety reasons. Exceptions may be allowed case-by-case for highly experienced dancers.</span></li>
+              <li><span class="qa-q">Q: What’s the baseline consent rule?</span><span class="qa-a">A: No intimate touch, no surprises, no testing boundaries. Everything stays within socially appropriate close-embrace partner-dance boundaries.</span></li>
+              <li><span class="qa-q">Q: Are there explicit no-go zones?</span><span class="qa-a">A: Yes. No-go zones will be clearly listed, shown, practiced, and repeated before the Silent Block.</span></li>
+              <li><span class="qa-q">Q: Is romantic escalation allowed?</span><span class="qa-a">A: No. Romantic/sexual escalation is explicitly prohibited.</span></li>
+              <li><span class="qa-q">Q: Is whispering or talking allowed during the Silent Block?</span><span class="qa-a">A: No participant talking during the Silent Block, with safety exceptions only.</span></li>
+              <li><span class="qa-q">Q: Are sensual movements allowed?</span><span class="qa-a">A: Some sensual movements are permitted within defined limits and boundaries shown in the first part. Consent and no-go-zone rules always apply.</span></li>
+              <li><span class="qa-q">Q: Is chest-to-chest contact allowed?</span><span class="qa-a">A: Yes, within defined limits demonstrated and reinforced in training.</span></li>
+              <li><span class="qa-q">Q: What are the safety signals during the Silent Block?</span><span class="qa-a">A: They will be trained in the first section:</span>
+                <ul>
+                  <li>Partner stop: trained hand squeeze → freeze + give space</li>
+                  <li>Call a team member: raise your hand</li>
+                  <li>Audible exception: allowed only if absolutely necessary (safety overrides silence)</li>
+                </ul>
+              </li>
+              <li><span class="qa-q">Q: What is the “Silent Blindfold Block” blindfold rule?</span><span class="qa-a">A: Blindfolds stay on in the dance space at all times during the Silent Block.</span></li>
+              <li><span class="qa-q">Q: What if I need water, restroom, or support during the Silent Block?</span><span class="qa-a">A: Raise your hand. A team member will escort you to a private safe area (separate from the dance space). Water is typically brought to you; restroom support depends on venue setup.</span></li>
+              <li><span class="qa-q">Q: Can I remove my blindfold in the safe area?</span><span class="qa-a">A: Yes, if necessary. The goal is to support you in the safest way possible.</span></li>
+              <li><span class="qa-q">Q: Can I return to the Silent Block after removing the blindfold in the safe area?</span><span class="qa-a">A: Usually yes, but the team may decline return for safety or integrity reasons (e.g., medical concern, repeated distress, not following instructions, disruptive behavior, or risk to self/others).</span></li>
+              <li><span class="qa-q">Q: If I’m not allowed to return to the Silent Block, what happens?</span><span class="qa-a">A: You can rest in a chill area and may be allowed to join the debrief.</span></li>
+              <li><span class="qa-q">Q: Is there a refund if I can’t return to the Silent Block?</span><span class="qa-a">A: No.</span></li>
+              <li><span class="qa-q">Q: What movements are prohibited?</span><span class="qa-a">A: No lifts, no dips, no broad movements, no broad head movements. Head movement is minimal and strictly guided—no fast or large-range head motion.</span></li>
+              <li><span class="qa-q">Q: Is traveling allowed?</span><span class="qa-a">A: In some exercises, yes, when safety allows. It’s taught in the first part and Angels may stop unsafe movement.</span></li>
+              <li><span class="qa-q">Q: Do height/strength differences matter?</span><span class="qa-a">A: The safety rule applies to everyone regardless of size or strength: you must dance safely and respect boundaries. Inside the safety limits, no differences should matter.</span></li>
+              <li><span class="qa-q">Q: Will the music be very loud?</span><span class="qa-a">A: Volume will be curated for comfort; ear protection should not be necessary.</span></li>
+              <li><span class="qa-q">Q: Should I come sober?</span><span class="qa-a">A: Yes. A clear “please come sober” policy applies.</span></li>
+              <li><span class="qa-q">Q: What should I wear / bring?</span><span class="qa-a">A: Comfortable dance clothes; nothing restrictive or complicated. Bring a water bottle and (recommended) a fresh shirt for the break. Warm layers may be advised depending on venue temperature.</span></li>
+              <li><span class="qa-q">Q: What should I avoid wearing/bringing?</span><span class="qa-a">A: No jewelry, rings, watches, sharp objects or sharp clothing elements. Short nails are strongly recommended.</span></li>
+              <li><span class="qa-q">Q: Are blindfolds provided?</span><span class="qa-a">A: Yes—blindfolds are included in the pass, brand new, adjustable, no pressure on eyes, tested for long duration, and yours to keep as a souvenir.</span></li>
+              <li><span class="qa-q">Q: What about glasses or contact lenses?</span><span class="qa-a">A: Glasses should be removed for the blindfolded part. Contact lenses are a personal choice; consult organizers if unsure.</span></li>
+              <li><span class="qa-q">Q: Can I store valuables safely?</span><span class="qa-a">A: Small valuables may be left with the team members for safekeeping, but participants are advised to bring as little as possible.</span></li>
+              <li><span class="qa-q">Q: Are photos/videos taken?</span><span class="qa-a">A: Photos/videos may be taken in the first part and during the debrief. The blindfolded Silent Block is strictly no recording.</span></li>
+              <li><span class="qa-q">Q: Can I opt out of being recorded?</span><span class="qa-a">A: Yes—opt-out is available. You can notify the organizer in advance or at check-in.</span></li>
+              <li><span class="qa-q">Q: Can I request removal from published material later?</span><span class="qa-a">A: Yes—send a message/email/DM within 24 hours after the workshop.</span></li>
+              <li><span class="qa-q">Q: How will opt-outs be enforced without markers?</span><span class="qa-a">A: The photographer is briefed and the team reviews material before publishing. With only 32 participants, opt-outs can be handled without on-body markers.</span></li>
+              <li><span class="qa-q">Q: Will the workshop be recorded during the silent blindfolded part?</span><span class="qa-a">A: No—never.</span></li>
+              <li><span class="qa-q">Q: What language is the workshop taught in?</span><span class="qa-a">A: English.</span></li>
+              <li><span class="qa-q">Q: What is the registration deadline?</span><span class="qa-a">A: Strict cutoff is 15 February 2026.</span></li>
+              <li><span class="qa-q">Q: What is the capacity?</span><span class="qa-a">A: 16 couples / 32 people total. First come, first served (within invitation/approval and parity).</span></li>
+              <li><span class="qa-q">Q: What is the refund policy?</span><span class="qa-a">A: Full refund until 15 January, 50% refund until 1 February, no refunds after that.</span></li>
+              <li><span class="qa-q">Q: Can I transfer or resell my ticket?</span><span class="qa-a">A: Transfers may be possible only with organizer confirmation in advance. Strict invitation-only; no public resale.</span></li>
+              <li><span class="qa-q">Q: What if I’m sick close to the event?</span><span class="qa-a">A: Please don’t come. Partial refund may be considered with flexible proof (positive test, pharmacy receipt, or medical provider message), case-by-case.</span></li>
+              <li><span class="qa-q">Q: Is there water provided?</span><span class="qa-a">A: Water will be available.</span></li>
+              <li><span class="qa-q">Q: Is there an afterparty or social?</span><span class="qa-a">A: No social is recommended immediately after; the experience can be physically or emotionally intense. There will be a closing debrief and time to ground.</span></li>
+              <li><span class="qa-q">Q: Is there aftercare support?</span><span class="qa-a">A: Yes—there is a guided debrief/grounding and the organizer will be available briefly after the workshop for individual discussions if needed.</span></li>
+              <li><span class="qa-q">Q: What if I have special accessibility needs?</span><span class="qa-a">A: This is a specialized dance format. Participants should assess their own ability to participate. If you have specific needs or uncertainty, contact the organizer in advance for clarification.</span></li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
     <!-- TICKETS -->
     <section id="tickets">
       <div class="wrap">
@@ -743,106 +456,25 @@
           <h2>Apply</h2>
           <div class="line"></div>
           <div class="sectionNote">
-            Apply → get approved/invited → pay → confirmed → can invite others.
+            Invitation-only. Curated list. Private forms go only to invited dancers.
           </div>
         </div>
 
-        <div class="applyGrid">
-          <div class="card">
-            <h3>Application form</h3>
-
-            <!-- This form is frontend-only. Replace action with your endpoint or embed your platform. -->
-            <form id="applyForm">
-              <div class="formRow">
-                <div>
-                  <label for="first_name">First name</label>
-                  <input id="first_name" name="first_name" autocomplete="first_name" required />
-                </div>
-                <div>
-                  <label for="last_name">Last name</label>
-                  <input id="last_name" name="last_name" autocomplete="last_name" required />
-                </div>
-                <div>
-                  <label for="email">Email</label>
-                  <input id="email" name="email" type="email" autocomplete="email" required />
-                </div>
-                <div>
-                  <label for="phone">Phone</label>
-                  <input id="phone" name="phone" type="tel" autocomplete="tel" required />
-                </div>
-              </div>
-
-              <div class="formRow">
-                <div>
-                  <label for="role">Role</label>
-                  <select id="role" name="role" required>
-                    <option value="" selected disabled>Select…</option>
-                    <option>Leader</option>
-                    <option>Follower</option>
-                  </select>
-                </div>
-                <div>
-                  <label for="level">Level</label>
-                  <select id="level" name="level" required>
-                    <option value="" selected disabled>Select…</option>
-                    <option>Basic</option>
-                    <option>Improver</option>
-                    <option>Intermediate</option>
-                    <option>Advanced</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label for="aboutYou">Short note (experience / where we know you from)</label>
-                <textarea id="aboutYou" name="aboutYou" placeholder="A few lines help us keep the container safe and aligned."></textarea>
-              </div>
-
-              <div>
-                <label>
-                  <input type="checkbox" required />
-                  I accept the workshop rules and Code of Conduct (safety-first, blindfold rules, sober policy).
-                </label>
-              </div>
-
-              <div>
-                <label for="emergency">Emergency contact (optional)</label>
-                <input id="emergency" name="emergency" placeholder="Name + phone (optional)" />
-              </div>
-
-              <button class="btn primary" type="submit">Submit application <span class="arrow">→</span></button>
-              <div class="fineprint">
-                Venue + exact address will be shared with confirmed participants no later than <b>15 Feb 2026</b>.
-              </div>
-            </form>
-          </div>
-
-          <div class="card">
-            <h3>Facilitators</h3>
-            <p><b>Daniel Drizhuk (DJ Touchzouk)</b> — 20 years in social dancing, 11 years in Zouk,
-              11 years with this workshop format.</p>
-            <p><b>Jill Medina</b> — artistically guiding movement, regulation, and somatic
-              exploration through release, stretch, and motion.</p>
-            <p><b>Anna Atman</b> — psychologist and coach with 10 years zouk experience.</p>
-            <p class="fineprint">
-              One or two more members to be announced.
-            </p>
-
-            <div style="height:14px;">&nbsp;</div>
-
-            <h3>Rotation & pairing note</h3>
-            <p>
-              Rotation is part of the format.
-              If you need a confidential “do not pair me with X” note,
-              you can submit it at any time (including on-site).
-              No questions asked; rotations will be adjusted.
-            </p>
-            <p>
-              However, we recommend not to do it unless strictly necessary,
-              as part of the experience is to perceive everything and everyone from
-              a fresh perspective.
-            </p>
-          </div>
+        <div class="card">
+          <h3>Invitation process</h3>
+          <p>
+            UNSEEN runs on invitations to keep the container small, sober, and balanced (16 leaders / 16 followers).
+            There is no public application form.
+          </p>
+          <ul>
+            <li>We curate a list from Amsterdam Zouk regulars and trusted visitors aligned with the safety-first vibe.</li>
+            <li>Invitations go out in small waves; we may ask a quick context check before sending one.</li>
+            <li>If you’re invited, you’ll receive a private invitation form with the rules recap and payment instructions to confirm your spot.</li>
+            <li>Declines or timeouts free the slot for the next person on the curated waitlist.</li>
+          </ul>
+          <p class="fineprint">
+            Want to be considered and we don’t know you yet? Message Daniel (DJ Touchzouk) with a short intro.
+          </p>
         </div>
       </div>
     </section>
@@ -860,12 +492,5 @@
     </footer>
   </main>
 
-  <script>
-    // Frontend-only demo submission (replace with your backend or form provider)
-    document.getElementById("applyForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      alert("Application submitted (demo). Replace this with your real form handler.");
-    });
-  </script>
 </body>
 </html>
