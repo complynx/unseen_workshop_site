@@ -748,8 +748,8 @@ class ApprovePaymentHandler(BaseHandler):
                         body=(
                             f"Hi {first_name},\n\n"
                             "Great news! Your registration has been approved.\n"
-                            "You can now log in to the portal and confirm some last details or invite other participants.\n"
-                            "Inviting participants you like is a great way to share the experience.\n\n"
+                            "You can now log in to the portal and confirm some last details, invite other participants or see the list of already confirmed ones.\n"
+                            "Inviting participants you like is a great way to share the experience, so don't hesitate to do so.\n\n"
                             f"Portal: {portal_link}\n\n"
                             "If you have any questions, just reply to this email."
                         ),
