@@ -106,15 +106,33 @@
 
         <div class="card" style="grid-column: 1 / -1;">
           <h3>Registrations</h3>
-          <div class="tableSimple registrationsTable">
+            <div class="tableSimple registrationsTable">
             <div class="tableHead">
-              <div>Name</div><div>Email</div><div>Role / Level</div><div>Phone</div><div>Group</div><div>Status</div><div>Actions</div>
+              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="name">Name</div>
+              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="email">Email</div>
+              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="rolelevel">Role / Level</div>
+              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="phone">Phone</div>
+              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="group">Group</div>
+              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="status">Status</div>
+              <div>Actions</div>
             </div>
             {% for reg in registrations %}
             {% set post_meta = reg.get("post_meta", {}) %}
             {% set verified = reg.get("email_verified_at") %}
             {% set paid = reg.get("payment_approved") %}
-            <div class="tableRow">
+            {% set full_name = ((reg.get("first_name","") + " " + reg.get("last_name","")).strip()) %}
+            <div
+              class="tableRow regRow"
+              data-name="{{ full_name.lower() }}"
+              data-email="{{ reg.get('email','').lower() }}"
+              data-role="{{ reg.get('role','').lower() }}"
+              data-level="{{ reg.get('level','').lower() }}"
+              data-phone="{{ reg.get('phone','') }}"
+              data-group="{{ '1' if post_meta.get('whatsapp_opt_in') else '0' }}"
+              data-status-rank="{{ 2 if paid else 1 if verified else 0 }}"
+              data-index="{{ reg.get('order', 0) }}"
+              data-details-id="{{ reg.get('_id') }}"
+            >
               <div>{{ reg.get("first_name") }} {{ reg.get("last_name") }}</div>
               <div class="fineprint">{{ reg.get("email") }}</div>
               <div>{{ reg.get("role","").title() }} / {{ reg.get("level","").title() }}</div>
@@ -218,20 +236,16 @@
                 <span>Show unregistered only</span>
               </label>
             </div>
-            <div class="sortRow">
-              <label class="fineprint" for="sort-suggestions" style="margin-right:6px;">Sort by</label>
-              <select id="sort-suggestions">
-                <option value="name">Suggested name</option>
-                <option value="potential_role">Potential role</option>
-                <option value="source">Source</option>
-                <option value="status">Status</option>
-              </select>
-            </div>
+            <div class="sortRow fineprint">Click column headers to sort. Role/Level cycles role ↕ then level ↕.</div>
           </div>
           {% end %}
           <div class="tableSimple suggestionsTable">
             <div class="tableHead">
-              <div>Suggested</div><div>Contact</div><div>Potential role</div><div>Source</div><div>Status</div>
+              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="name">Suggested</div>
+              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="contact">Contact</div>
+              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="potential_role">Potential role</div>
+              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="source">Source</div>
+              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="status">Status</div>
             </div>
             {% for sug in invite_suggestions %}
             <div
@@ -242,6 +256,8 @@
               data-source="{{ sug.get('source_name','').lower() }}"
               data-processed="{{ 'true' if sug.get('processed') else 'false' }}"
               data-registered="{{ 'true' if sug.get('registered') else 'false' }}"
+              data-contact="{{ sug.get('contact','').lower() }}"
+              data-index="{{ sug.get('order', 0) }}"
             >
               <div>{{ sug.get("name") }}</div>
               <div class="fineprint">{{ sug.get("contact") }}</div>
@@ -345,11 +361,14 @@
 
       const filterUnprocessed = document.getElementById('filter-unprocessed');
       const filterUnregistered = document.getElementById('filter-unregistered');
-      const sortSelect = document.getElementById('sort-suggestions');
       const suggestionsTable = document.querySelector('.suggestionsTable');
+      const registrationsTable = document.querySelector('.registrationsTable');
       const emptyState = document.getElementById('suggestions-empty');
 
-      const getRows = () => Array.from(suggestionsTable?.querySelectorAll('[data-suggestion="true"]') || []);
+      const sortState = {
+        registrations: { key: null, dir: null, mode: null },
+        suggestions: { key: null, dir: null, mode: null },
+      };
 
       const statusRank = (row) => {
         const registered = row.dataset.registered === 'true';
@@ -359,23 +378,126 @@
         return 2;
       };
 
-      const applyFiltersAndSort = () => {
-        const rows = getRows();
-        const wantUnprocessed = !!filterUnprocessed?.checked;
-        const wantUnregistered = !!filterUnregistered?.checked;
-        const sortBy = sortSelect?.value || 'name';
+      const cycleSort = (table, key) => {
+        const current = sortState[table];
+        if (key === 'rolelevel') {
+          const modes = [
+            { key: 'rolelevel', mode: 'role', dir: 'asc' },
+            { key: 'rolelevel', mode: 'role', dir: 'desc' },
+            { key: 'rolelevel', mode: 'level', dir: 'asc' },
+            { key: 'rolelevel', mode: 'level', dir: 'desc' },
+            { key: null, dir: null, mode: null },
+          ];
+          const idx = modes.findIndex(
+            (m) => m.key === current.key && m.dir === current.dir && m.mode === current.mode
+          );
+          const next = modes[(idx + 1) % modes.length];
+          sortState[table] = next;
+        } else {
+          const modes = [
+            { key, dir: 'asc', mode: null },
+            { key, dir: 'desc', mode: null },
+            { key: null, dir: null, mode: null },
+          ];
+          const idx = modes.findIndex((m) => m.key === current.key && m.dir === current.dir);
+          const next = modes[(idx + 1) % modes.length];
+          sortState[table] = next;
+        }
+      };
+
+      const updateSortIndicators = () => {
+        document.querySelectorAll('[data-sortable]').forEach((el) => {
+          el.setAttribute('data-sort-indicator', '');
+        });
+        Object.entries(sortState).forEach(([table, state]) => {
+          if (!state.key) return;
+          const selector = `[data-sort-table="${table}"][data-sort-key="${state.key}"]`;
+          const header = document.querySelector(selector);
+          if (!header) return;
+          let indicator = '';
+          if (state.key === 'rolelevel') {
+            indicator =
+              state.mode === 'role'
+                ? state.dir === 'asc'
+                  ? 'R↑'
+                  : 'R↓'
+                : state.dir === 'asc'
+                  ? 'L↑'
+                  : 'L↓';
+          } else {
+            indicator = state.dir === 'asc' ? '↑' : '↓';
+          }
+          header.setAttribute('data-sort-indicator', indicator);
+        });
+      };
+
+      const sortValue = (row, key, mode) => {
+        const normalizedKey = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+        if (key === 'rolelevel') {
+          if (mode === 'level') return row.dataset.level || '';
+          return row.dataset.role || '';
+        }
+        if (key === 'status') return Number(row.dataset.statusRank || 0);
+        if (key === 'group') return Number(row.dataset.group || 0);
+        if (key === 'contact') return row.dataset.contact || '';
+        return row.dataset[normalizedKey] || '';
+      };
+
+      const applyRegistrationSort = () => {
+        if (!registrationsTable) return;
+        const rows = Array.from(registrationsTable.querySelectorAll('.regRow'));
+        const state = sortState.registrations;
+        const details = new Map();
+        document.querySelectorAll('.regDetails').forEach((el) => {
+          const key = el.getAttribute('data-details');
+          if (key) details.set(key, el);
+        });
 
         const sorted = rows.slice().sort((a, b) => {
-          const aName = a.dataset.name || '';
-          const bName = b.dataset.name || '';
-          const aRole = a.dataset.potentialRole || '';
-          const bRole = b.dataset.potentialRole || '';
-          const aSource = a.dataset.source || '';
-          const bSource = b.dataset.source || '';
-          if (sortBy === 'potential_role') return aRole.localeCompare(bRole) || aName.localeCompare(bName);
-          if (sortBy === 'source') return aSource.localeCompare(bSource) || aName.localeCompare(bName);
-          if (sortBy === 'status') return statusRank(a) - statusRank(b) || aName.localeCompare(bName);
-          return aName.localeCompare(bName);
+          const orderA = Number(a.dataset.index || 0);
+          const orderB = Number(b.dataset.index || 0);
+          if (!state.key) return orderA - orderB;
+          const aVal = sortValue(a, state.key, state.mode);
+          const bVal = sortValue(b, state.key, state.mode);
+          const dir = state.dir === 'desc' ? -1 : 1;
+          if (typeof aVal === 'number' || typeof bVal === 'number') {
+            return dir * (Number(aVal) - Number(bVal));
+          }
+          return dir * String(aVal).localeCompare(String(bVal)) || orderA - orderB;
+        });
+
+        const fragment = document.createDocumentFragment();
+        const head = registrationsTable.querySelector('.tableHead');
+        if (head) fragment.appendChild(head);
+        sorted.forEach((row) => {
+          fragment.appendChild(row);
+          const detailId = row.dataset.detailsId;
+          if (detailId && details.has(detailId)) {
+            fragment.appendChild(details.get(detailId));
+          }
+        });
+        registrationsTable.innerHTML = '';
+        registrationsTable.appendChild(fragment);
+      };
+
+      const applySuggestions = () => {
+        if (!suggestionsTable) return;
+        const rows = Array.from(suggestionsTable.querySelectorAll('[data-suggestion="true"]'));
+        const state = sortState.suggestions;
+        const wantUnprocessed = !!filterUnprocessed?.checked;
+        const wantUnregistered = !!filterUnregistered?.checked;
+
+        const sorted = rows.slice().sort((a, b) => {
+          const orderA = Number(a.dataset.index || 0);
+          const orderB = Number(b.dataset.index || 0);
+          if (!state.key) return orderA - orderB;
+          const aVal = state.key === 'status' ? statusRank(a) : sortValue(a, state.key, state.mode);
+          const bVal = state.key === 'status' ? statusRank(b) : sortValue(b, state.key, state.mode);
+          const dir = state.dir === 'desc' ? -1 : 1;
+          if (typeof aVal === 'number' || typeof bVal === 'number') {
+            return dir * (Number(aVal) - Number(bVal));
+          }
+          return dir * String(aVal).localeCompare(String(bVal)) || orderA - orderB;
         });
 
         let visibleCount = 0;
@@ -389,29 +511,38 @@
           row.classList.toggle('is-hidden', !show);
         });
 
-        if (suggestionsTable) {
-          const head = suggestionsTable.querySelector('.tableHead');
-          const fragment = document.createDocumentFragment();
-          if (head) fragment.appendChild(head);
-          sorted.forEach((row) => fragment.appendChild(row));
-          if (emptyState) fragment.appendChild(emptyState);
-          suggestionsTable.innerHTML = '';
-          suggestionsTable.appendChild(fragment);
-        }
-
+        const fragment = document.createDocumentFragment();
+        const head = suggestionsTable.querySelector('.tableHead');
+        if (head) fragment.appendChild(head);
+        sorted.forEach((row) => fragment.appendChild(row));
         if (emptyState) {
           emptyState.classList.toggle('is-hidden', visibleCount !== 0);
+          fragment.appendChild(emptyState);
         }
+        suggestionsTable.innerHTML = '';
+        suggestionsTable.appendChild(fragment);
       };
 
-      [filterUnprocessed, filterUnregistered, sortSelect].forEach((el) => {
-        if (!el) return;
-        el.addEventListener('change', applyFiltersAndSort);
+      document.querySelectorAll('[data-sortable]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const table = el.getAttribute('data-sort-table');
+          const key = el.getAttribute('data-sort-key');
+          if (!table || !key || !(table in sortState)) return;
+          cycleSort(table, key);
+          updateSortIndicators();
+          applyRegistrationSort();
+          applySuggestions();
+        });
       });
 
-      if (suggestionsTable) {
-        applyFiltersAndSort();
-      }
+      [filterUnprocessed, filterUnregistered].forEach((el) => {
+        if (!el) return;
+        el.addEventListener('change', applySuggestions);
+      });
+
+      updateSortIndicators();
+      applyRegistrationSort();
+      applySuggestions();
     })();
   </script>
 </body>

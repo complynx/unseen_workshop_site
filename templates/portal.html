@@ -70,11 +70,11 @@
               <div>
                 <label>Opposite role #1</label>
                 {% set opp1_locked = opp_list[0].get('processed') or opp_list[0].get('registered') %}
-                <input type="text" name="opp_name_1" placeholder="Name" value="{{ opp_list[0].get('name','') }}" {% if opp1_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="opp_name_1" placeholder="Name" value="{{ opp_list[0].get('name','') }}" {% if opp1_locked %}disabled{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="opp_contact_1" placeholder="Email / phone" value="{{ opp_list[0].get('contact','') }}" {% if opp1_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="opp_contact_1" placeholder="Email / phone" value="{{ opp_list[0].get('contact','') }}" {% if opp1_locked %}disabled{% end %}>
               </div>
             </div>
             {% if opp1_locked %}
@@ -84,11 +84,11 @@
               <div>
                 <label>Opposite role #2</label>
                 {% set opp2_locked = opp_list[1].get('processed') or opp_list[1].get('registered') %}
-                <input type="text" name="opp_name_2" placeholder="Name" value="{{ opp_list[1].get('name','') }}" {% if opp2_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="opp_name_2" placeholder="Name" value="{{ opp_list[1].get('name','') }}" {% if opp2_locked %}disabled{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="opp_contact_2" placeholder="Email / phone" value="{{ opp_list[1].get('contact','') }}" {% if opp2_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="opp_contact_2" placeholder="Email / phone" value="{{ opp_list[1].get('contact','') }}" {% if opp2_locked %}disabled{% end %}>
               </div>
             </div>
             {% if opp2_locked %}
@@ -98,11 +98,11 @@
               <div>
                 <label>Opposite role #3</label>
                 {% set opp3_locked = opp_list[2].get('processed') or opp_list[2].get('registered') %}
-                <input type="text" name="opp_name_3" placeholder="Name" value="{{ opp_list[2].get('name','') }}" {% if opp3_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="opp_name_3" placeholder="Name" value="{{ opp_list[2].get('name','') }}" {% if opp3_locked %}disabled{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="opp_contact_3" placeholder="Email / phone" value="{{ opp_list[2].get('contact','') }}" {% if opp3_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="opp_contact_3" placeholder="Email / phone" value="{{ opp_list[2].get('contact','') }}" {% if opp3_locked %}disabled{% end %}>
               </div>
             </div>
             {% if opp3_locked %}
@@ -113,11 +113,11 @@
               <div>
                 <label>Same role</label>
                 {% set same_locked = same_entry.get('processed') or same_entry.get('registered') %}
-                <input type="text" name="same_name" placeholder="Name" value="{{ same_entry.get('name','') }}" {% if same_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="same_name" placeholder="Name" value="{{ same_entry.get('name','') }}" {% if same_locked %}disabled{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="same_contact" placeholder="Email / phone" value="{{ same_entry.get('contact','') }}" {% if same_locked %}disabled class="lockedField"{% end %}>
+                <input type="text" name="same_contact" placeholder="Email / phone" value="{{ same_entry.get('contact','') }}" {% if same_locked %}disabled{% end %}>
               </div>
             </div>
             {% if same_locked %}

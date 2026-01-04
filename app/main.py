@@ -781,7 +781,12 @@ class AdminHandler(BaseHandler):
                 else:
                     reg_stats["registered"][role] += 1
 
-            reg_dict: Document = {**doc_typed, "_id": str(doc_typed["_id"]), "post_meta": post_meta}
+            reg_dict: Document = {
+                **doc_typed,
+                "_id": str(doc_typed["_id"]),
+                "post_meta": post_meta,
+                "order": len(registrations),
+            }
             registrations.append(reg_dict)
 
             source_name = f"{(doc_typed.get('first_name') or '').strip()} {(doc_typed.get('last_name') or '').strip()}".strip()
@@ -803,6 +808,7 @@ class AdminHandler(BaseHandler):
                         "registered": bool(entry.get("registered")),
                         "kind": "opposite",
                         "index": idx,
+                        "order": len(invite_suggestions),
                     }
                 )
             same_entry = post_meta.get("same")
@@ -821,6 +827,7 @@ class AdminHandler(BaseHandler):
                         "registered": bool(same_entry.get("registered")),
                         "kind": "same",
                         "index": 0,
+                        "order": len(invite_suggestions),
                     }
                 )
 
