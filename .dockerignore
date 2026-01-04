@@ -1,0 +1,10 @@
+.venv
+.venv-linux
+__pycache__
+*.pyc
+*.pyo
+.mypy_cache
+.ruff_cache
+.git
+static/*.png
+static/*.woff2

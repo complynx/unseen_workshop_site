@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My portal • UNSEEN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <span class="dot"></span>
+          <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
+        </div>
+        <div class="cta">
+          <a class="btn" href="/">Home</a>
+          <form method="post" action="/logout">
+            <button class="btn" type="submit">Logout</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="pageSection">
+      <div class="wrap dashGrid">
+        <div class="card">
+          <h3>Your registration</h3>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+            {% if user.get("payment_approved") %}
+              <span class="statusBadge success">Payment approved</span>
+            {% else %}
+              <span class="statusBadge muted">Awaiting payment approval</span>
+            {% end %}
+            <span class="fineprint">Invite: {{ user.get("invite_code") }}</span>
+          </div>
+          <div class="regGrid">
+            <div><b>Name</b><br>{{ user.get("first_name") }} {{ user.get("last_name") }}</div>
+            <div><b>Email</b><br>{{ user.get("email") }}</div>
+            <div><b>Role</b><br>{{ user.get("role","").title() }}</div>
+            <div><b>Level</b><br>{{ user.get("level","").title() }}</div>
+            <div><b>Phone</b><br>{{ user.get("phone") }}</div>
+            {% if user.get("partner_name") %}
+            <div><b>Partner</b><br>{{ user.get("partner_name") }} ({{ user.get("partner_contact") }})</div>
+            {% end %}
+          </div>
+          <p class="fineprint">We will reach out for payment via the contact provided.</p>
+        </div>
+
+        <div class="card">
+          <h3>Invite recommendations</h3>
+          {% if errors %}
+          <div class="alert">
+            {% for err in errors %}
+              <div>{{ err.get("msg") }}</div>
+            {% end %}
+          </div>
+          {% end %}
+
+          {% if user.get("payment_approved") %}
+          <form method="post" action="/portal">
+            <div class="formRow">
+              <div>
+                <label>Opposite role #1</label>
+                <input type="text" name="opp_name_1" placeholder="Name" value="{{ post_approval.get('opposite',[{}, {}, {}])[0].get('name','') }}">
+              </div>
+              <div>
+                <label>Contact</label>
+                <input type="text" name="opp_contact_1" placeholder="Email / phone" value="{{ post_approval.get('opposite',[{}, {}, {}])[0].get('contact','') }}">
+              </div>
+            </div>
+            <div class="formRow">
+              <div>
+                <label>Opposite role #2</label>
+                <input type="text" name="opp_name_2" placeholder="Name" value="{{ post_approval.get('opposite',[{}, {}, {}])[1].get('name','') }}">
+              </div>
+              <div>
+                <label>Contact</label>
+                <input type="text" name="opp_contact_2" placeholder="Email / phone" value="{{ post_approval.get('opposite',[{}, {}, {}])[1].get('contact','') }}">
+              </div>
+            </div>
+            <div class="formRow">
+              <div>
+                <label>Opposite role #3</label>
+                <input type="text" name="opp_name_3" placeholder="Name" value="{{ post_approval.get('opposite',[{}, {}, {}])[2].get('name','') }}">
+              </div>
+              <div>
+                <label>Contact</label>
+                <input type="text" name="opp_contact_3" placeholder="Email / phone" value="{{ post_approval.get('opposite',[{}, {}, {}])[2].get('contact','') }}">
+              </div>
+            </div>
+
+            <div class="formRow">
+              <div>
+                <label>Same role</label>
+                <input type="text" name="same_name" placeholder="Name" value="{{ post_approval.get('same', {}).get('name','') }}">
+              </div>
+              <div>
+                <label>Contact</label>
+                <input type="text" name="same_contact" placeholder="Email / phone" value="{{ post_approval.get('same', {}).get('contact','') }}">
+              </div>
+            </div>
+
+            <div>
+              <label for="allergies">Any allergies or food limitations?</label>
+              <textarea id="allergies" name="allergies" placeholder="Add details">{{ post_approval.get('allergies','') }}</textarea>
+            </div>
+
+            <div class="checkboxRow">
+              <label style="display:flex; gap:10px; align-items:flex-start;">
+                <input type="checkbox" name="whatsapp_opt_in" value="true" {% if post_approval.get('whatsapp_opt_in') %}checked{% end %}>
+                <span>Add me to the participants WhatsApp group</span>
+              </label>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+              <button class="btn primary" type="submit">Save details</button>
+            </div>
+          </form>
+          {% else %}
+            <p class="fineprint">Once payment is approved, you can add invite recommendations and dietary notes here.</p>
+          {% end %}
+        </div>
+
+        <div class="card">
+          <h3>Confirmed participants (names only)</h3>
+          <ul class="participantList">
+            {% for p in participants %}
+              <li>{{ p }}</li>
+            {% end %}
+            {% if not participants %}
+              <li class="fineprint">No participants listed yet.</li>
+            {% end %}
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin • UNSEEN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <span class="dot"></span>
+          <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
+        </div>
+        <div class="cta">
+          <form method="post" action="/logout">
+            <button class="btn" type="submit">Logout</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="pageSection">
+      <div class="wrap dashGrid">
+        <div class="card">
+          <h3>Create invitation</h3>
+          <p class="fineprint">Base URL: {{ base_url }}/register/&lt;code&gt;</p>
+          <form method="post" action="/admin/invites">
+            <div class="formRow">
+              <div>
+                <label for="label">Label / name</label>
+                <input type="text" id="label" name="label" placeholder="Amsterdam wave 1">
+              </div>
+              <div>
+                <label for="code">Invitation code (optional)</label>
+                <input type="text" id="code" name="code" placeholder="auto if blank">
+              </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
+              <button class="btn primary" type="submit">Create invite</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Invitations</h3>
+          <div class="tableSimple">
+            <div class="tableHead">
+              <div>Label</div><div>Code</div><div>Link</div><div>Created</div>
+            </div>
+            {% for inv in invites %}
+            <div class="tableRow">
+              <div>{{ inv.get("label") }}</div>
+              <div><code>{{ inv.get("code") }}</code></div>
+              <div class="fineprint">{{ base_url }}/register/{{ inv.get("code") }}</div>
+              <div class="fineprint">{{ inv.get("created_at") }}</div>
+            </div>
+            {% end %}
+            {% if not invites %}
+            <div class="fineprint">No invites yet.</div>
+            {% end %}
+          </div>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+          <h3>Registrations</h3>
+          <div class="tableSimple">
+            <div class="tableHead">
+              <div>Name</div><div>Email</div><div>Role</div><div>Level</div><div>Status</div><div>Actions</div>
+            </div>
+            {% for reg in registrations %}
+            <div class="tableRow">
+              <div>{{ reg.get("first_name") }} {{ reg.get("last_name") }}</div>
+              <div class="fineprint">{{ reg.get("email") }}</div>
+              <div>{{ reg.get("role","").title() }}</div>
+              <div>{{ reg.get("level","").title() }}</div>
+              <div>
+                {% if reg.get("payment_approved") %}
+                  <span class="statusBadge success">Payment approved</span>
+                {% else %}
+                  <span class="statusBadge muted">Awaiting payment</span>
+                {% end %}
+                {% if reg.get("email_verified_at") %}
+                  <span class="statusBadge success">Email verified</span>
+                {% else %}
+                  <span class="statusBadge muted">Email pending</span>
+                {% end %}
+              </div>
+              <div>
+                <form method="post" action="/admin/approve/{{ reg.get('_id') }}" style="display:flex; gap:8px;">
+                  {% if reg.get("payment_approved") %}
+                  <button class="btn" name="action" value="revoke" type="submit">Revoke</button>
+                  {% else %}
+                  <button class="btn primary" name="action" value="approve" type="submit">Approve</button>
+                  {% end %}
+                </form>
+              </div>
+            </div>
+            {% end %}
+            {% if not registrations %}
+            <div class="fineprint">No registrations yet.</div>
+            {% end %}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

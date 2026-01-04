@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sign in • UNSEEN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <span class="dot"></span>
+          <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
+        </div>
+        <div class="cta">
+          <a class="btn" href="/">Back home</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="pageSection">
+      <div class="wrap authWrap">
+        <div class="card authCard">
+          <h2>Login</h2>
+          <p class="fineprint">Admins use the configured credentials. Participants use the email/password set during registration.</p>
+
+          {% if error %}
+          <div class="alert">{{ error }}</div>
+          {% end %}
+
+          <form method="post" action="/login">
+            <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" required>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+              <a class="btn" href="/verify">Verify email</a>
+              <a class="btn" href="/">Cancel</a>
+              <button class="btn primary" type="submit">Log in</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

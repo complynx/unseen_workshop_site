@@ -1,0 +1,5 @@
+tornado>=6.5
+motor>=3.7
+pydantic>=2.12
+pydantic-settings[yaml]>=2.12
+PyYAML>=6.0

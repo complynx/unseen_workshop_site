@@ -1,0 +1,18 @@
+# Base URL used when generating invitation links
+app_base_url: "http://localhost:8888"
+
+# Listening port
+port: 8888
+
+# Mongo connection (Motor / PyMongo URI)
+mongo_url: "mongodb://localhost:27017"
+mongo_db: "unseen"
+invites_collection: "invites"
+users_collection: "users"
+
+# Admin credentials (email + password or pbkdf2 hash)
+admin_email: "admin@example.com"
+admin_password: "change-me"
+
+# Optional cookie secret (auto-generated if omitted)
+# cookie_secret: "generate-a-random-string"

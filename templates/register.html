@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Invitation • UNSEEN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <div class="brand">
+          <span class="dot"></span>
+          <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
+        </div>
+        <div class="cta">
+          <a class="btn" href="/">Home</a>
+          <a class="btn" href="/login">Login</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="pageSection">
+      <div class="wrap applyGrid">
+        <div class="card">
+          <h3>Private invitation</h3>
+          <p>You were invited with code <b>{{ code }}</b>. Please register carefully; we may check ID on arrival.</p>
+          <p class="fineprint">Invites are single-person; if you wish to register with a partner of the opposite role, tick the checkbox below and add their details.</p>
+          {% if errors %}
+          <div class="alert">
+            Please fix the following:
+            <ul>
+              {% for err in errors %}
+                <li>{{ err.get("msg") }}</li>
+              {% end %}
+            </ul>
+          </div>
+          {% end %}
+
+          <form method="post" action="">
+            <div class="formRow">
+              <div>
+                <label for="first_name">First name (as on ID)</label>
+                <input type="text" id="first_name" name="first_name" required value="{{ values.get('first_name','') }}">
+              </div>
+              <div>
+                <label for="last_name">Last name (as on ID)</label>
+                <input type="text" id="last_name" name="last_name" required value="{{ values.get('last_name','') }}">
+              </div>
+            </div>
+
+            <div class="formRow">
+              <div>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required value="{{ values.get('email','') }}">
+              </div>
+              <div>
+                <label for="confirm_email">Confirm email</label>
+                <input type="email" id="confirm_email" name="confirm_email" required value="{{ values.get('confirm_email','') }}">
+              </div>
+            </div>
+
+            <div class="formRow">
+              <div>
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" name="phone" required value="{{ values.get('phone','') }}">
+              </div>
+              <div>
+                <label for="role">Role</label>
+                <select id="role" name="role" required>
+                  <option value="">Select role</option>
+                  <option value="leader" {% if values.get('role') == 'leader' %}selected{% end %}>Leader</option>
+                  <option value="follower" {% if values.get('role') == 'follower' %}selected{% end %}>Follower</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="formRow">
+              <div>
+                <label for="level">Level</label>
+                <select id="level" name="level" required>
+                  <option value="">Select level</option>
+                  {% for lvl in ["beginner","improver","intermediate","advanced"] %}
+                  <option value="{{ lvl }}" {% if values.get('level') == lvl %}selected{% end %}>{{ lvl.capitalize() }}</option>
+                  {% end %}
+                </select>
+              </div>
+              <div>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+              </div>
+            </div>
+
+            <div class="formRow">
+              <div>
+                <label for="password_confirm">Repeat password</label>
+                <input type="password" id="password_confirm" name="password_confirm" required>
+              </div>
+              <div class="checkboxRow">
+                <label for="want_partner" style="display:flex; gap:10px; align-items:flex-start;">
+                  <input type="checkbox" id="want_partner" name="want_partner" value="true" {% if values.get('want_partner') %}checked{% end %}>
+                  <span>I want to register with a partner of an opposite role.</span>
+                </label>
+              </div>
+            </div>
+
+            <div id="partnerFields" class="partnerFields" {% if not values.get('want_partner') %}style="display:none;"{% end %}>
+              <div class="formRow">
+                <div>
+                  <label for="partner_name">Partner name</label>
+                  <input type="text" id="partner_name" name="partner_name" value="{{ values.get('partner_name','') }}">
+                </div>
+                <div>
+                  <label for="partner_contact">Partner contact</label>
+                  <input type="text" id="partner_contact" name="partner_contact" value="{{ values.get('partner_contact','') }}">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label for="special_conditions">Any special conditions we should know about?</label>
+              <textarea id="special_conditions" name="special_conditions" placeholder="Allergies, medical notes, accessibility, anything we should consider.">{{ values.get('special_conditions','') }}</textarea>
+            </div>
+
+            <div class="checkboxRow">
+              <label style="display:flex; gap:10px; align-items:flex-start;">
+                <input type="checkbox" name="accept_rules" value="true" {% if values.get('accept_rules') %}checked{% end %} required>
+                <span>I accept the workshop rules and Code of Conduct (safety-first, blindfold rules, sober policy).</span>
+              </label>
+            </div>
+
+            <div class="checkboxRow">
+              <label style="display:flex; gap:10px; align-items:flex-start;">
+                <input type="checkbox" name="consent_data" value="true" {% if values.get('consent_data') %}checked{% end %} required>
+                <span>I consent to store and process my data for the purpose of this workshop.</span>
+              </label>
+            </div>
+
+            <p class="fineprint">After submitting, you'll see a confirmation screen (proof of submission). The admin will reach out for payment.</p>
+
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+              <a class="btn" href="/">Cancel</a>
+              <button class="btn primary" type="submit">Submit registration</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Safety-first container</h3>
+          <ul>
+            <li>Bring a government-issued ID that matches the name above. For safety we may check it at arrival.</li>
+            <li>Parity is strict: 16 leaders / 16 followers. If you're registering with a partner, both must be the opposite role.</li>
+            <li>Sober policy applies. No alcohol or recreational drugs before/during the event.</li>
+            <li>Blindfold block is silent; safety exceptions exist. Read the safety section on the main page.</li>
+          </ul>
+          <p class="fineprint">Questions? Reply to the invite email or message the organizer directly.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const partnerCheckbox = document.getElementById('want_partner');
+    const partnerFields = document.getElementById('partnerFields');
+    if (partnerCheckbox) {
+      partnerCheckbox.addEventListener('change', () => {
+        partnerFields.style.display = partnerCheckbox.checked ? 'block' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
