@@ -434,6 +434,11 @@ class RegisterHandler(BaseHandler):
         if not isinstance(inserted_id, ObjectId):
             raise RuntimeError("Unexpected insert id type.")
 
+        try:
+            await self.db[self.cfg.invites_collection].delete_one({"code": code})
+        except Exception:
+            pass
+
         verification_link = f"{self.cfg.app_base_url.rstrip('/')}/verify?code={record.email_verification_code}&email={record.email}"
         try:
             send_email(
