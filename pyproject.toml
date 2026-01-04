@@ -9,8 +9,8 @@ packages = ["app"]
 include-package-data = true
 
 [tool.setuptools.data-files]
-"static" = ["static/**"]
-"templates" = ["templates/**"]
+"static" = ["static/**/*"]
+"templates" = ["templates/**/*"]
 "." = ["unseen.html", "config.example.yaml"]
 
 [build-system]

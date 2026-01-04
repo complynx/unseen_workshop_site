@@ -1,0 +1,5 @@
+graft static
+graft templates
+include unseen.html
+include config.example.yaml
+global-exclude *.pyc *.pyo __pycache__/*
