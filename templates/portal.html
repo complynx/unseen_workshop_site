@@ -36,8 +36,8 @@
               <span class="statusBadge success">Payment approved</span>
             {% else %}
               <span class="statusBadge muted">Awaiting payment approval</span>
+              <span class="fineprint">We will send an email when your payment is confirmed.</span>
             {% end %}
-            <span class="fineprint">Invite: {{ user.get("invite_code") }}</span>
           </div>
           <div class="regGrid">
             <div><b>Name</b><br>{{ user.get("first_name") }} {{ user.get("last_name") }}</div>
