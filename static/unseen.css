@@ -558,6 +558,7 @@ footer{
   display:flex;
   flex-direction:column;
   gap: 10px;
+  overflow-x: auto;
 }
 .tableHead,
 .tableRow{
@@ -567,6 +568,11 @@ footer{
   align-items:center;
   padding: 6px 0;
   border-bottom: 1px solid rgba(248,117,26,.10);
+  align-items:start;
+}
+.tableHead div,
+.tableRow div{
+  min-width: 0;
 }
 .invitesTable .tableHead,
 .invitesTable .tableRow{
@@ -624,23 +630,23 @@ footer{
 .registrationsTable .tableHead,
 .registrationsTable .tableRow{
   grid-template-columns:
-    minmax(180px, 1.1fr)
-    minmax(220px, 1.2fr)
-    minmax(160px, .9fr)
+    minmax(140px, 1.05fr)
+    minmax(160px, 1.2fr)
+    minmax(140px, .95fr)
+    minmax(110px, .85fr)
+    minmax(110px, .8fr)
     minmax(140px, .9fr)
-    minmax(140px, .8fr)
-    minmax(170px, .9fr)
-    minmax(180px, 1fr);
+    minmax(140px, 1fr);
   align-items:center;
 }
 .suggestionsTable .tableHead,
 .suggestionsTable .tableRow{
   grid-template-columns:
-    minmax(160px, 1fr)
-    minmax(200px, 1.2fr)
-    minmax(150px, .8fr)
-    minmax(240px, 1.2fr)
-    minmax(220px, 1fr);
+    minmax(140px, 1fr)
+    minmax(180px, 1.1fr)
+    minmax(130px, .8fr)
+    minmax(200px, 1.1fr)
+    minmax(170px, 1fr);
   align-items:start;
 }
 .rowActions{
@@ -753,6 +759,10 @@ footer{
   .suggestionsTable .tableHead,
   .suggestionsTable .tableRow{
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .registrationsTable .tableHead,
+  .registrationsTable .tableRow{
+    align-items:start;
   }
   .registrationsTable .tableHead div:nth-child(5),
   .registrationsTable .tableRow div:nth-child(5),
