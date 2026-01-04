@@ -577,11 +577,10 @@ footer{
 .invitesTable .tableHead,
 .invitesTable .tableRow{
   grid-template-columns:
-    minmax(0, 1.05fr)
-    minmax(140px, .9fr)
-    minmax(160px, .9fr)
-    minmax(140px, .9fr)
-    minmax(130px, .9fr);
+    minmax(0, 1.1fr)
+    minmax(160px, .95fr)
+    minmax(160px, .95fr)
+    minmax(140px, .9fr);
   align-items:start;
 }
 .inviteLinkCell{
@@ -609,6 +608,17 @@ footer{
   align-items:center;
   flex-wrap:wrap;
   padding-top: 4px;
+}
+.inviteSummary{
+  display:flex;
+  flex-direction:column;
+  gap: 4px;
+}
+.inviteLabel{
+  font-weight: 600;
+}
+.inviteCode{
+  color: var(--muted2);
 }
 .tableHead{
   color: var(--muted2);

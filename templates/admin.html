@@ -82,7 +82,7 @@
           </div>
           <div class="tableSimple invitesTable">
             <div class="tableHead">
-              <div>Label</div><div>Code</div><div>Status</div><div>Created</div><div>Actions</div>
+              <div>Label / Code</div><div>Status</div><div>Created</div><div>Actions</div>
             </div>
             {% for inv in invites %}
             {% set invite_status = (inv.get("status") or "active").lower() %}
@@ -93,8 +93,10 @@
               data-invite-status="{{ invite_status }}"
               data-archived="{{ 'true' if invite_archived else 'false' }}"
             >
-              <div>{{ inv.get("label") }}</div>
-              <div><code>{{ inv.get("code") }}</code></div>
+              <div class="inviteSummary">
+                <div class="inviteLabel">{{ inv.get("label") }}</div>
+                <div class="inviteCode"><code>{{ inv.get("code") }}</code></div>
+              </div>
               <div>
                 {% if invite_status == "used" %}
                   <span class="statusBadge success">Used</span>
