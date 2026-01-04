@@ -729,9 +729,12 @@ class VerifyHandler(BaseHandler):
         if not stored_code or stored_code != code:
             self.render("templates/verify.html", error="Invalid code.", success=None, email=email, code=code)
             return
-        if expires_at and isinstance(expires_at, dt.datetime) and expires_at < utcnow():
-            self.render("templates/verify.html", error="Code expired. Request a new invite.", success=None, email=email, code=code)
-            return
+        if expires_at and isinstance(expires_at, dt.datetime):
+            if expires_at.tzinfo is None:
+                expires_at = expires_at.replace(tzinfo=dt.timezone.utc)
+            if expires_at < utcnow():
+                self.render("templates/verify.html", error="Code expired. Request a new invite.", success=None, email=email, code=code)
+                return
 
         await users.update_one(
             {"email_lower": email},
@@ -761,7 +764,7 @@ def make_app(settings: Settings) -> tornado.web.Application:
     else:
         if not settings.mongo_url:
             raise RuntimeError("mongo_url is required when not using in-memory database.")
-        db_client: AsyncIOMotorClient[Document] | InMemoryClient = AsyncIOMotorClient(settings.mongo_url)
+        db_client: AsyncIOMotorClient[Document] | InMemoryClient = AsyncIOMotorClient(settings.mongo_url, tz_aware=True)
     db: Database = db_client.get_database()
 
     parsed = urlparse(settings.app_base_url)
