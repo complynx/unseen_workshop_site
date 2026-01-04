@@ -6,5 +6,3 @@ __pycache__
 .mypy_cache
 .ruff_cache
 .git
-static/*.png
-static/*.woff2
