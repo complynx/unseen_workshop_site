@@ -378,15 +378,6 @@
           return aName.localeCompare(bName);
         });
 
-        const container = suggestionsTable;
-        if (container) {
-          const head = container.querySelector('.tableHead');
-          sorted.forEach((row) => {
-            container.appendChild(row);
-          });
-          if (head) container.insertBefore(head, container.firstChild);
-        }
-
         let visibleCount = 0;
         sorted.forEach((row) => {
           const processed = row.dataset.processed === 'true';
@@ -395,11 +386,21 @@
           if (wantUnprocessed && processed) show = false;
           if (wantUnregistered && registered) show = false;
           if (show) visibleCount += 1;
-          row.hidden = !show;
+          row.classList.toggle('is-hidden', !show);
         });
 
+        if (suggestionsTable) {
+          const head = suggestionsTable.querySelector('.tableHead');
+          const fragment = document.createDocumentFragment();
+          if (head) fragment.appendChild(head);
+          sorted.forEach((row) => fragment.appendChild(row));
+          if (emptyState) fragment.appendChild(emptyState);
+          suggestionsTable.innerHTML = '';
+          suggestionsTable.appendChild(fragment);
+        }
+
         if (emptyState) {
-          emptyState.hidden = visibleCount !== 0;
+          emptyState.classList.toggle('is-hidden', visibleCount !== 0);
         }
       };
 

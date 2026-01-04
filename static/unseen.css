@@ -722,6 +722,9 @@ footer{
 .checkboxInline input{
   margin: 0;
 }
+.is-hidden{
+  display:none !important;
+}
 .lockedField{
   cursor: not-allowed;
   opacity: .78;
