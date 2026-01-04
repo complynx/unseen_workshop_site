@@ -435,7 +435,7 @@ class RegisterHandler(BaseHandler):
             raise RuntimeError("Unexpected insert id type.")
 
         try:
-            await self.db[self.cfg.invites_collection].delete_one({"code": code})
+            await self.db[self.cfg.invites_collection].delete_one({"code": code}) # type: ignore[unused-ignore]
         except Exception:
             pass
 

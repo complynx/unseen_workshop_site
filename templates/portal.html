@@ -107,7 +107,7 @@
             </div>
 
             <div>
-              <label for="allergies">Any allergies or food limitations?</label>
+              <label for="allergies">Any allergies, food limitations or other notes about you?</label>
               <textarea id="allergies" name="allergies" placeholder="Add details">{{ post_approval.get('allergies','') }}</textarea>
             </div>
 
@@ -123,12 +123,13 @@
             </div>
           </form>
           {% else %}
-            <p class="fineprint">Once payment is approved, you can add invite recommendations and dietary notes here.</p>
+            <p class="fineprint">Once payment is approved, you can add invite recommendations and notes about yourself here.</p>
           {% end %}
         </div>
 
         <div class="card">
-          <h3>Confirmed participants (names only)</h3>
+          <h3>Confirmed participants</h3>
+          <span class="fineprint">(names only)</span>
           <ul class="participantList">
             {% for p in participants %}
               <li>{{ p }}</li>
