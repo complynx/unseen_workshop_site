@@ -58,16 +58,15 @@
 
         <div class="card">
           <h3>Create invitation</h3>
-          <p class="fineprint">Base URL: {{ base_url }}/register/&lt;code&gt;</p>
           <form method="post" action="{{ base_path }}/admin/invites">
             <div class="formRow">
               <div>
-                <label for="label">Label / name</label>
-                <input type="text" id="label" name="label" placeholder="Amsterdam wave 1">
+                <label for="label">Name</label>
+                <input type="text" id="label" name="label" placeholder="Ivan Ivanov">
               </div>
               <div>
-                <label for="code">Invitation code (optional)</label>
-                <input type="text" id="code" name="code" placeholder="auto if blank">
+                <label for="code">Invitation code</label>
+                <input type="text" id="code" name="code" placeholder="generate if blank">
               </div>
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
@@ -207,12 +206,43 @@
         <div class="card" style="grid-column: 1 / -1;">
           <h3>Invite suggestions</h3>
           <p class="fineprint">From participant recommendations</p>
+          {% if invite_suggestions %}
+          <div class="tableToolbar">
+            <div class="filtersRow">
+              <label class="checkboxInline">
+                <input type="checkbox" id="filter-unprocessed">
+                <span>Show unprocessed only</span>
+              </label>
+              <label class="checkboxInline">
+                <input type="checkbox" id="filter-unregistered">
+                <span>Show unregistered only</span>
+              </label>
+            </div>
+            <div class="sortRow">
+              <label class="fineprint" for="sort-suggestions" style="margin-right:6px;">Sort by</label>
+              <select id="sort-suggestions">
+                <option value="name">Suggested name</option>
+                <option value="potential_role">Potential role</option>
+                <option value="source">Source</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+          </div>
+          {% end %}
           <div class="tableSimple suggestionsTable">
             <div class="tableHead">
               <div>Suggested</div><div>Contact</div><div>Potential role</div><div>Source</div><div>Status</div>
             </div>
             {% for sug in invite_suggestions %}
-            <div class="tableRow">
+            <div
+              class="tableRow"
+              data-suggestion="true"
+              data-name="{{ sug.get('name','').lower() }}"
+              data-potential-role="{{ sug.get('potential_role','').lower() }}"
+              data-source="{{ sug.get('source_name','').lower() }}"
+              data-processed="{{ 'true' if sug.get('processed') else 'false' }}"
+              data-registered="{{ 'true' if sug.get('registered') else 'false' }}"
+            >
               <div>{{ sug.get("name") }}</div>
               <div class="fineprint">{{ sug.get("contact") }}</div>
               <div>{{ sug.get("potential_role","").title() }}</div>
@@ -236,6 +266,9 @@
                 </form>
               </div>
             </div>
+            {% end %}
+            {% if invite_suggestions %}
+            <div class="fineprint" id="suggestions-empty" hidden>No matching suggestions.</div>
             {% end %}
             {% if not invite_suggestions %}
             <div class="fineprint">No suggestions yet.</div>
@@ -309,6 +342,75 @@
         if (!form) return;
         form.submit();
       });
+
+      const filterUnprocessed = document.getElementById('filter-unprocessed');
+      const filterUnregistered = document.getElementById('filter-unregistered');
+      const sortSelect = document.getElementById('sort-suggestions');
+      const suggestionsTable = document.querySelector('.suggestionsTable');
+      const emptyState = document.getElementById('suggestions-empty');
+
+      const getRows = () => Array.from(suggestionsTable?.querySelectorAll('[data-suggestion="true"]') || []);
+
+      const statusRank = (row) => {
+        const registered = row.dataset.registered === 'true';
+        const processed = row.dataset.processed === 'true';
+        if (!processed && !registered) return 0;
+        if (processed && !registered) return 1;
+        return 2;
+      };
+
+      const applyFiltersAndSort = () => {
+        const rows = getRows();
+        const wantUnprocessed = !!filterUnprocessed?.checked;
+        const wantUnregistered = !!filterUnregistered?.checked;
+        const sortBy = sortSelect?.value || 'name';
+
+        const sorted = rows.slice().sort((a, b) => {
+          const aName = a.dataset.name || '';
+          const bName = b.dataset.name || '';
+          const aRole = a.dataset.potentialRole || '';
+          const bRole = b.dataset.potentialRole || '';
+          const aSource = a.dataset.source || '';
+          const bSource = b.dataset.source || '';
+          if (sortBy === 'potential_role') return aRole.localeCompare(bRole) || aName.localeCompare(bName);
+          if (sortBy === 'source') return aSource.localeCompare(bSource) || aName.localeCompare(bName);
+          if (sortBy === 'status') return statusRank(a) - statusRank(b) || aName.localeCompare(bName);
+          return aName.localeCompare(bName);
+        });
+
+        const container = suggestionsTable;
+        if (container) {
+          const head = container.querySelector('.tableHead');
+          sorted.forEach((row) => {
+            container.appendChild(row);
+          });
+          if (head) container.insertBefore(head, container.firstChild);
+        }
+
+        let visibleCount = 0;
+        sorted.forEach((row) => {
+          const processed = row.dataset.processed === 'true';
+          const registered = row.dataset.registered === 'true';
+          let show = true;
+          if (wantUnprocessed && processed) show = false;
+          if (wantUnregistered && registered) show = false;
+          if (show) visibleCount += 1;
+          row.hidden = !show;
+        });
+
+        if (emptyState) {
+          emptyState.hidden = visibleCount !== 0;
+        }
+      };
+
+      [filterUnprocessed, filterUnregistered, sortSelect].forEach((el) => {
+        if (!el) return;
+        el.addEventListener('change', applyFiltersAndSort);
+      });
+
+      if (suggestionsTable) {
+        applyFiltersAndSort();
+      }
     })();
   </script>
 </body>
