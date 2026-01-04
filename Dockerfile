@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the app
 COPY . .
 
+# Install the app so package metadata and data files are available.
+RUN pip install --no-cache-dir .
+
 # Default port (configurable via UNSEEN_PORT or config.yaml)
 EXPOSE 8888
 
