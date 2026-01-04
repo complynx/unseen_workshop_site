@@ -18,8 +18,8 @@
           <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
         </div>
         <div class="cta">
-          <a class="btn" href="/">Home</a>
-          <a class="btn" href="/login">Login</a>
+          <a class="btn" href="{{ base_path or '/' }}">Home</a>
+          <a class="btn" href="{{ base_path }}/login">Login</a>
         </div>
       </div>
     </div>
@@ -41,7 +41,7 @@
           </div>
           {% end %}
 
-          <form method="post" action="/verify">
+          <form method="post" action="{{ base_path }}/verify">
             <div>
               <label for="email">Email</label>
               <input type="email" id="email" name="email" required value="{{ email or '' }}">
@@ -51,7 +51,7 @@
               <input type="text" id="code" name="code" required placeholder="8-character code" value="{{ code or '' }}">
             </div>
             <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
-              <a class="btn" href="/login">Back to login</a>
+              <a class="btn" href="{{ base_path }}/login">Back to login</a>
               <button class="btn primary" type="submit">Verify</button>
             </div>
           </form>

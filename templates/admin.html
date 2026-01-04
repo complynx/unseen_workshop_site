@@ -18,7 +18,7 @@
           <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
         </div>
         <div class="cta">
-          <form method="post" action="/logout">
+          <form method="post" action="{{ base_path }}/logout">
             <button class="btn" type="submit">Logout</button>
           </form>
         </div>
@@ -32,7 +32,7 @@
         <div class="card">
           <h3>Create invitation</h3>
           <p class="fineprint">Base URL: {{ base_url }}/register/&lt;code&gt;</p>
-          <form method="post" action="/admin/invites">
+          <form method="post" action="{{ base_path }}/admin/invites">
             <div class="formRow">
               <div>
                 <label for="label">Label / name</label>
@@ -94,7 +94,7 @@
                 {% end %}
               </div>
               <div>
-                <form method="post" action="/admin/approve/{{ reg.get('_id') }}" style="display:flex; gap:8px;">
+                <form method="post" action="{{ base_path }}/admin/approve/{{ reg.get('_id') }}" style="display:flex; gap:8px;">
                   {% if reg.get("payment_approved") %}
                   <button class="btn" name="action" value="revoke" type="submit">Revoke</button>
                   {% else %}

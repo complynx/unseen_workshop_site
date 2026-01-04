@@ -8,6 +8,7 @@ from collections.abc import Sequence
 from email.message import EmailMessage
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, TypedDict, cast
+from urllib.parse import urlparse
 
 import tornado.escape
 import tornado.ioloop
@@ -246,6 +247,34 @@ class BaseHandler(tornado.web.RequestHandler):
             return cast(SessionData, tornado.escape.json_decode(raw))
         except Exception:
             return None
+
+    @property
+    def base_path(self) -> str:
+        base = cast(str, self.settings.get("base_path", ""))
+        return "" if base == "/" else base
+
+    def _with_base(self, url: str) -> str:
+        base = self.base_path
+        if not base:
+            return url
+        if url.startswith(("http://", "https://")):
+            return url
+        if url.startswith(base + "/") or url == base:
+            return url
+        if url.startswith("/"):
+            return f"{base}{url}"
+        return f"{base}/{url}"
+
+    def redirect(self, url: str, permanent: bool = False, status: Optional[int] = None) -> None: # type: ignore[override]
+        super().redirect(self._with_base(url), permanent=permanent, status=status)
+
+    def reverse_url(self, name: str, *args: Any) -> str: # type: ignore[override]
+        raw = super().reverse_url(name, *args)
+        return self._with_base(raw)
+
+    def render(self, template_name: str, **kwargs: Any) -> None: # type: ignore[override]
+        kwargs.setdefault("base_path", self.base_path)
+        super().render(template_name, **kwargs)
 
     def write_error(self, status_code: int, **kwargs: Any) -> None:
         if status_code == 404:
@@ -705,6 +734,13 @@ def make_app(settings: Settings) -> tornado.web.Application:
     db_client: AsyncIOMotorClient[Document] = AsyncIOMotorClient(settings.mongo_url)
     db: Database = db_client.get_database()
 
+    parsed = urlparse(settings.app_base_url)
+    base_path = parsed.path.rstrip("/")
+    if base_path and not base_path.startswith("/"):
+        base_path = f"/{base_path}"
+    static_prefix = f"{base_path}/static/" if base_path else "/static/"
+    login_path = f"{base_path}/login" if base_path else "/login"
+
     handlers: Sequence[tornado.routing.Rule] = [
         tornado.web.url(r"/", LandingHandler, name="home"),
         tornado.web.url(r"/login", LoginHandler, name="login"),
@@ -721,9 +757,11 @@ def make_app(settings: Settings) -> tornado.web.Application:
         "app_settings": settings,
         "db": db,
         "cookie_secret": settings.cookie_secret,
-        "login_url": "/login",
+        "login_url": login_path,
         "template_path": str(os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))),
         "static_path": str(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static"))),
+        "static_url_prefix": static_prefix,
+        "base_path": base_path,
         "xsrf_cookies": False,
     }
     return tornado.web.Application(handlers, **settings_dict)

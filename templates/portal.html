@@ -18,8 +18,8 @@
           <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
         </div>
         <div class="cta">
-          <a class="btn" href="/">Home</a>
-          <form method="post" action="/logout">
+          <a class="btn" href="{{ base_path or '/' }}">Home</a>
+          <form method="post" action="{{ base_path }}/logout">
             <button class="btn" type="submit">Logout</button>
           </form>
         </div>
@@ -64,7 +64,7 @@
           {% end %}
 
           {% if user.get("payment_approved") %}
-          <form method="post" action="/portal">
+          <form method="post" action="{{ base_path }}/portal">
             <div class="formRow">
               <div>
                 <label>Opposite role #1</label>

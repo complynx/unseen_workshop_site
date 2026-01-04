@@ -18,8 +18,8 @@
           <span class="dslogo">U<span style="margin-left:-0.14em">NSEEN</span></span>
         </div>
         <div class="cta">
-          <a class="btn" href="/">Home</a>
-          <a class="btn" href="/login">Login</a>
+          <a class="btn" href="{{ base_path or '/' }}">Home</a>
+          <a class="btn" href="{{ base_path }}/login">Login</a>
         </div>
       </div>
     </div>
@@ -145,7 +145,7 @@
             <p class="fineprint">After submitting, you'll see a confirmation screen (proof of submission). The admin will reach out for payment.</p>
 
             <div style="display:flex; gap:10px; justify-content:flex-end;">
-              <a class="btn" href="/">Cancel</a>
+              <a class="btn" href="{{ base_path or '/' }}">Cancel</a>
               <button class="btn primary" type="submit">Submit registration</button>
             </div>
           </form>
