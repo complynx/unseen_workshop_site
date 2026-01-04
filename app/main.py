@@ -24,9 +24,11 @@ from pydantic_settings import (
 )
 from pymongo.errors import DuplicateKeyError
 
-Document = dict[str, Any]
-Database = AsyncIOMotorDatabase[Document]
-Collection = AsyncIOMotorCollection[Document]
+from .in_memory_db import Document, InMemoryClient, InMemoryCollection, InMemoryDatabase
+
+
+Database = AsyncIOMotorDatabase[Document] | InMemoryDatabase
+Collection = AsyncIOMotorCollection[Document] | InMemoryCollection
 
 
 def utcnow() -> dt.datetime:
@@ -45,7 +47,8 @@ class Settings(BaseSettings):
 
     app_base_url: str = "http://localhost:8888"
     port: int = 8888
-    mongo_url: str
+    use_in_memory_db: bool = False
+    mongo_url: Optional[str] = None
     invites_collection: str = "unseen_invites"
     users_collection: str = "unseen_users"
     admin_email: EmailStr
@@ -81,6 +84,12 @@ class Settings(BaseSettings):
             yaml_source,
             file_secret_settings,
         )
+
+    @model_validator(mode="after")
+    def validate_database_choice(self) -> "Settings":
+        if not self.use_in_memory_db and not self.mongo_url:
+            raise ValueError("mongo_url is required unless use_in_memory_db is true.")
+        return self
 
 
 def load_settings() -> Settings:
@@ -731,7 +740,12 @@ async def create_indexes(db: Database, cfg: Settings) -> None:
 
 
 def make_app(settings: Settings) -> tornado.web.Application:
-    db_client: AsyncIOMotorClient[Document] = AsyncIOMotorClient(settings.mongo_url)
+    if settings.use_in_memory_db:
+        db_client = InMemoryClient()
+    else:
+        if not settings.mongo_url:
+            raise RuntimeError("mongo_url is required when not using in-memory database.")
+        db_client: AsyncIOMotorClient[Document] | InMemoryClient = AsyncIOMotorClient(settings.mongo_url)
     db: Database = db_client.get_database()
 
     parsed = urlparse(settings.app_base_url)

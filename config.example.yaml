@@ -4,6 +4,9 @@ app_base_url: "http://localhost:8888"
 # Listening port
 port: 8888
 
+# Use an in-memory fake database when MongoDB is not available
+use_in_memory_db: false
+
 # Mongo connection (Motor / PyMongo URI)
 mongo_url: "mongodb://localhost:27017/unseen"
 invites_collection: "invites"

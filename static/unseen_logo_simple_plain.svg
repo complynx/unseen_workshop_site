@@ -7,53 +7,9 @@
    viewBox="0 0 40 20"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
-   sodipodi:docname="unseen_logo_simple.svg"
-   inkscape:export-filename="unseen_logo.png"
-   inkscape:export-xdpi="1000"
-   inkscape:export-ydpi="1000"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#000000"
-     bordercolor="#484848"
-     borderopacity="0.24705882"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="false"
-     inkscape:deskcolor="#1c1c1c"
-     inkscape:document-units="mm"
-     showgrid="false"
-     inkscape:zoom="8"
-     inkscape:cx="77.75"
-     inkscape:cy="50.0625"
-     inkscape:window-width="2560"
-     inkscape:window-height="1518"
-     inkscape:window-x="-12"
-     inkscape:window-y="-12"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
-     labelstyle="default"
-     inkscape:clip-to-page="false">
-    <inkscape:grid
-       id="grid2"
-       units="mm"
-       originx="0"
-       originy="0"
-       spacingx="0.99999998"
-       spacingy="1"
-       empcolor="#0099e5"
-       empopacity="0.30196078"
-       color="#0099e5"
-       opacity="0.14901961"
-       empspacing="5"
-       enabled="true"
-       visible="false" />
-  </sodipodi:namedview>
   <defs
      id="defs1">
     <rect
@@ -69,8 +25,7 @@
        height="302.36221"
        id="rect16" />
     <linearGradient
-       id="linearGradient12"
-       inkscape:collect="always">
+       id="linearGradient12">
       <stop
          style="stop-color:#ff7800;stop-opacity:1;"
          offset="0.60680753"
@@ -101,7 +56,6 @@
        height="193.63704"
        id="rect2" />
     <radialGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient12"
        id="radialGradient9"
        gradientUnits="userSpaceOnUse"
@@ -113,12 +67,11 @@
        gradientTransform="matrix(0.05898588,-0.07217354,0.15406443,0.12591356,23.059515,41.436183)" />
     <filter
        style="color-interpolation-filters:sRGB"
-       inkscape:label="Blur"
        id="filter4"
        x="-0.2427987"
-       y="-1.0657124"
+       y="-1.0657127"
        width="1.4855974"
-       height="3.1314247">
+       height="3.1314255">
       <feMorphology
          radius="1"
          id="feMorphology4"
@@ -130,41 +83,37 @@
       <feColorMatrix
          id="feColorMatrix6"
          result="result1"
-         values="1.0000000 0.0000000 0.0000000 0.0000000 0.40000000 0.0000000 1.0000000 0.0000000 0.0000000 -0.40000000 0.0000000 0.0000000 1.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 1.0000000 0.0000000 " />
+         values="1.0000000 0.0000000 0.0000000 0.0000000 0.40000000 0.0000000 1.0000000 0.0000000 0.0000000 -0.40000000 0.0000000 0.0000000 1.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.50000000 0.0000000 " />
       <feMerge
          id="feMerge5"
          numOctaves="6">
         <feMergeNode
-           inkscape:collect="always"
            id="feMergeNode5"
            in="result1" />
         <feMergeNode
-           inkscape:collect="always"
            id="feMergeNode6"
            in="SourceGraphic" />
       </feMerge>
     </filter>
   </defs>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
      id="layer1">
     <g
        id="g6"
        transform="matrix(0.18195829,0,0,0.18195829,0.75502244,0.51431815)">
-      <text
-         xml:space="preserve"
-         transform="matrix(0.29072348,0,0,0.29072348,-61.537634,-224.07412)"
+      <g
          id="text17"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:192px;font-family:DSLogo;-inkscape-font-specification:DSLogo;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect17);display:inline;opacity:1;fill:#ff7800;fill-opacity:1;stroke:none;stroke-width:54.5;filter:url(#filter4)"
-         inkscape:label="unseen"><tspan
-           x="322.79688"
-           y="1039.0273"
-           id="tspan5"><tspan
-             style="letter-spacing:-40.8712px"
-             id="tspan2">U</tspan><tspan
-             dx="-40.871201"
-             id="tspan4">NSEEN</tspan></tspan></text>
+         style="font-size:192px;font-family:DSLogo;-inkscape-font-specification:DSLogo;letter-spacing:0px;white-space:pre;fill:#ff7800;stroke-width:54.5;filter:url(#filter4)"
+         transform="matrix(0.29072348,0,0,0.29072348,-61.537634,-224.07412)"
+         aria-label="UNSEEN">
+        <path
+           style="letter-spacing:-40.8712px"
+           d="m 398.17187,987.08984 q -5.8125,6.46875 -13.96875,9.9375 -8.15625,3.46876 -17.8125,3.46876 -12.375,0 -22.40625,-6.28126 -10.03125,-6.375 -15.65625,-17.34375 -5.53125,-11.0625 -5.53125,-24.46875 v -66.75 h 10.5 v 66.75 q 0,16.96875 9.09375,27.375 9.1875,10.3125 24,10.3125 15.09375,0 24,-9.9375 z"
+           id="path2" />
+        <path
+           d="m 374.73817,885.46484 h 19.21875 q 13.6875,0 24.28125,5.25 10.6875,5.15625 17.53125,14.25 12.28125,16.3125 12.28125,41.53125 v 48.75 5.34371 h -10.6875 v -5.34371 -48.75 q 0,-21.65625 -10.21875,-35.15625 -11.4375,-15.1875 -33.1875,-15.1875 h -13.875 -5.34375 z m 124.78125,0 h 53.15625 v 10.5 h -5.15625 -48 q -10.125,0 -16.125,6 -5.90625,5.90625 -5.90625,16.875 0,9.1875 6.46875,15.84375 6.46875,6.65625 15.5625,6.65625 h 20.53125 q 14.71875,0 23.625,8.53125 9,8.4375 9,20.25 0,10.40625 -4.59375,17.34375 -4.59375,6.9375 -10.875,10.5 l -4.6875,2.62496 -5.15625,-8.99996 4.40625,-2.71875 q 2.25,-1.3125 3.75,-2.53125 1.59375,-1.3125 3.28125,-3.46875 1.6875,-2.15625 2.53125,-5.34375 0.84375,-3.1875 0.84375,-7.40625 0,-7.78125 -5.625,-13.03125 -5.53125,-5.25 -16.5,-5.25 h -20.71875 q -7.875,0 -15.375,-4.40625 -7.5,-4.5 -12.28125,-12.1875 -4.78125,-7.78125 -4.78125,-16.40625 0,-7.125 2.34375,-13.59375 2.34375,-6.46875 6.65625,-10.78125 9,-9 23.625,-9 z m 70.96875,0 h 73.3125 v 10.6875 h -5.34375 -62.625 -5.34375 z m 6.9375,55.6875 h 5.34375 20.90625 5.4375 v 10.6875 h -5.4375 -20.90625 -5.34375 z m -6.9375,48.75 h 5.34375 62.625 5.34375 v 10.68746 h -73.3125 z m 92.15624,-104.4375 h 73.3125 v 10.6875 h -5.34375 -62.625 -5.34375 z m 6.9375,55.6875 h 5.34375 20.90625 5.4375 v 10.6875 h -5.4375 -20.90625 -5.34375 z m -6.9375,48.75 h 5.34375 62.625 5.34375 v 10.68746 h -73.3125 z m 92.15625,-104.4375 h 19.21875 q 13.6875,0 24.28125,5.25 10.6875,5.15625 17.53125,14.25 12.28125,16.3125 12.28125,41.53125 v 48.75 5.34371 h -10.6875 v -5.34371 -48.75 q 0,-21.65625 -10.21875,-35.15625 -11.4375,-15.1875 -33.1875,-15.1875 h -13.875 -5.34375 z"
+           id="path3" />
+      </g>
       <circle
          style="opacity:1;mix-blend-mode:screen;fill:url(#radialGradient9);fill-opacity:1;stroke:none;stroke-width:5.77682"
          id="circle9"
