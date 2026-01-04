@@ -14,7 +14,6 @@ import tornado.ioloop
 import tornado.web
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection, AsyncIOMotorDatabase
-from motor.motor_tornado import MotorClient
 from pydantic import BaseModel, EmailStr, Field, ValidationError, model_validator
 from pydantic_settings import (
     BaseSettings,
@@ -46,7 +45,6 @@ class Settings(BaseSettings):
     app_base_url: str = "http://localhost:8888"
     port: int = 8888
     mongo_url: str
-    mongo_db: str = "unseen"
     invites_collection: str = "unseen_invites"
     users_collection: str = "unseen_users"
     admin_email: EmailStr
@@ -704,8 +702,8 @@ async def create_indexes(db: Database, cfg: Settings) -> None:
 
 
 def make_app(settings: Settings) -> tornado.web.Application:
-    db_client: AsyncIOMotorClient[Document] = cast(AsyncIOMotorClient[Document], MotorClient(settings.mongo_url))
-    db: Database = db_client[settings.mongo_db]
+    db_client: AsyncIOMotorClient[Document] = AsyncIOMotorClient(settings.mongo_url)
+    db: Database = db_client.get_database()
 
     handlers: Sequence[tornado.routing.Rule] = [
         tornado.web.url(r"/", LandingHandler, name="home"),
