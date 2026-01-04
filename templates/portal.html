@@ -63,48 +63,66 @@
           {% end %}
 
           {% if user.get("payment_approved") %}
+          {% set opp_list = post_approval.get('opposite',[{}, {}, {}]) %}
+          {% set same_entry = post_approval.get('same', {}) %}
           <form method="post" action="{{ base_path }}/portal">
             <div class="formRow">
               <div>
                 <label>Opposite role #1</label>
-                <input type="text" name="opp_name_1" placeholder="Name" value="{{ post_approval.get('opposite',[{}, {}, {}])[0].get('name','') }}">
+                {% set opp1_locked = opp_list[0].get('processed') or opp_list[0].get('registered') %}
+                <input type="text" name="opp_name_1" placeholder="Name" value="{{ opp_list[0].get('name','') }}" {% if opp1_locked %}disabled class="lockedField"{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="opp_contact_1" placeholder="Email / phone" value="{{ post_approval.get('opposite',[{}, {}, {}])[0].get('contact','') }}">
+                <input type="text" name="opp_contact_1" placeholder="Email / phone" value="{{ opp_list[0].get('contact','') }}" {% if opp1_locked %}disabled class="lockedField"{% end %}>
               </div>
             </div>
+            {% if opp1_locked %}
+            <div class="fineprint">Locked by admin.</div>
+            {% end %}
             <div class="formRow">
               <div>
                 <label>Opposite role #2</label>
-                <input type="text" name="opp_name_2" placeholder="Name" value="{{ post_approval.get('opposite',[{}, {}, {}])[1].get('name','') }}">
+                {% set opp2_locked = opp_list[1].get('processed') or opp_list[1].get('registered') %}
+                <input type="text" name="opp_name_2" placeholder="Name" value="{{ opp_list[1].get('name','') }}" {% if opp2_locked %}disabled class="lockedField"{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="opp_contact_2" placeholder="Email / phone" value="{{ post_approval.get('opposite',[{}, {}, {}])[1].get('contact','') }}">
+                <input type="text" name="opp_contact_2" placeholder="Email / phone" value="{{ opp_list[1].get('contact','') }}" {% if opp2_locked %}disabled class="lockedField"{% end %}>
               </div>
             </div>
+            {% if opp2_locked %}
+            <div class="fineprint">Locked by admin.</div>
+            {% end %}
             <div class="formRow">
               <div>
                 <label>Opposite role #3</label>
-                <input type="text" name="opp_name_3" placeholder="Name" value="{{ post_approval.get('opposite',[{}, {}, {}])[2].get('name','') }}">
+                {% set opp3_locked = opp_list[2].get('processed') or opp_list[2].get('registered') %}
+                <input type="text" name="opp_name_3" placeholder="Name" value="{{ opp_list[2].get('name','') }}" {% if opp3_locked %}disabled class="lockedField"{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="opp_contact_3" placeholder="Email / phone" value="{{ post_approval.get('opposite',[{}, {}, {}])[2].get('contact','') }}">
+                <input type="text" name="opp_contact_3" placeholder="Email / phone" value="{{ opp_list[2].get('contact','') }}" {% if opp3_locked %}disabled class="lockedField"{% end %}>
               </div>
             </div>
+            {% if opp3_locked %}
+            <div class="fineprint">Locked by admin.</div>
+            {% end %}
 
             <div class="formRow">
               <div>
                 <label>Same role</label>
-                <input type="text" name="same_name" placeholder="Name" value="{{ post_approval.get('same', {}).get('name','') }}">
+                {% set same_locked = same_entry.get('processed') or same_entry.get('registered') %}
+                <input type="text" name="same_name" placeholder="Name" value="{{ same_entry.get('name','') }}" {% if same_locked %}disabled class="lockedField"{% end %}>
               </div>
               <div>
                 <label>Contact</label>
-                <input type="text" name="same_contact" placeholder="Email / phone" value="{{ post_approval.get('same', {}).get('contact','') }}">
+                <input type="text" name="same_contact" placeholder="Email / phone" value="{{ same_entry.get('contact','') }}" {% if same_locked %}disabled class="lockedField"{% end %}>
               </div>
             </div>
+            {% if same_locked %}
+            <div class="fineprint">Locked by admin.</div>
+            {% end %}
 
             <div>
               <label for="allergies">Any allergies, food limitations or other notes about you?</label>

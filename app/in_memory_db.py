@@ -17,6 +17,11 @@ class InMemoryUpdateResult:
         self.matched_count = matched_count
 
 
+class InMemoryDeleteResult:
+    def __init__(self, deleted_count: int) -> None:
+        self.deleted_count = deleted_count
+
+
 class InMemoryCursor:
     def __init__(self, documents: list[Document]) -> None:
         self._documents = documents
@@ -116,6 +121,14 @@ class InMemoryCollection:
             self._documents[idx] = updated
             return InMemoryUpdateResult(1)
         return InMemoryUpdateResult(0)
+
+    async def delete_one(self, filt: Dict[str, Any]) -> InMemoryDeleteResult:
+        for idx, doc in enumerate(self._documents):
+            if not self._matches(doc, filt):
+                continue
+            del self._documents[idx]
+            return InMemoryDeleteResult(1)
+        return InMemoryDeleteResult(0)
 
 
 class InMemoryDatabase:

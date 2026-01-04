@@ -521,6 +521,39 @@ footer{
 .adminGrid{
   grid-template-columns: minmax(320px, .9fr) minmax(440px, 1.4fr);
 }
+.balanceGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+.balanceItem{
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(248,117,26,.18);
+  background: var(--detail-bg);
+}
+.balanceCounts{
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.countBadge{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(248,117,26,.26);
+  background: rgba(7,4,6,.45);
+  font-size: 13px;
+}
+.countBadge b{
+  font-size: 16px;
+  color: var(--accent);
+  font-weight: 600;
+}
 .tableSimple{
   display:flex;
   flex-direction:column;
@@ -579,9 +612,93 @@ footer{
   color: #b3ffdf;
   background: rgba(0, 194, 120, .12);
 }
+.statusBadge.warn{
+  border-color: rgba(248,117,26,.36);
+  color: var(--accent);
+  background: rgba(248,117,26,.12);
+}
 .statusBadge.muted{
   border-color: rgba(248,117,26,.18);
   color: var(--muted2);
+}
+.registrationsTable .tableHead,
+.registrationsTable .tableRow{
+  grid-template-columns:
+    minmax(180px, 1.1fr)
+    minmax(220px, 1.2fr)
+    minmax(160px, .9fr)
+    minmax(140px, .9fr)
+    minmax(140px, .8fr)
+    minmax(170px, .9fr)
+    minmax(180px, 1fr);
+  align-items:center;
+}
+.suggestionsTable .tableHead,
+.suggestionsTable .tableRow{
+  grid-template-columns:
+    minmax(160px, 1fr)
+    minmax(200px, 1.2fr)
+    minmax(150px, .8fr)
+    minmax(240px, 1.2fr)
+    minmax(220px, 1fr);
+  align-items:start;
+}
+.rowActions{
+  display:flex;
+  flex-wrap: wrap;
+  align-items:center;
+  gap: 8px;
+}
+.btn.ghost{
+  background: rgba(7,4,6,.20);
+  border-color: rgba(248,117,26,.22);
+  padding: 8px 10px;
+}
+.btn.ghost:hover{
+  border-color: rgba(248,117,26,.36);
+  box-shadow: none;
+}
+.chevron{
+  display:inline-block;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--accent);
+  border-bottom: 2px solid var(--accent);
+  transform: rotate(45deg);
+  transition: transform .18s ease;
+}
+.detailsToggle[aria-expanded="true"] .chevron{
+  transform: rotate(-135deg);
+}
+.regDetails{
+  border: 1px solid rgba(248,117,26,.16);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--detail-bg);
+}
+.regDetailGrid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px 14px;
+}
+.suggestionForm{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+}
+.checkboxInline{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted2);
+}
+.checkboxInline input{
+  margin: 0;
+}
+.lockedField{
+  cursor: not-allowed;
+  opacity: .78;
 }
 .regGrid{
   display:grid;
@@ -629,6 +746,26 @@ footer{
   }
   .invitesTable .tableHead div:nth-child(4),
   .invitesTable .tableRow div:nth-child(4){
+    grid-column: 1 / -1;
+  }
+  .registrationsTable .tableHead,
+  .registrationsTable .tableRow,
+  .suggestionsTable .tableHead,
+  .suggestionsTable .tableRow{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .registrationsTable .tableHead div:nth-child(5),
+  .registrationsTable .tableRow div:nth-child(5),
+  .registrationsTable .tableHead div:nth-child(6),
+  .registrationsTable .tableRow div:nth-child(6),
+  .registrationsTable .tableHead div:nth-child(7),
+  .registrationsTable .tableRow div:nth-child(7){
+    grid-column: 1 / -1;
+  }
+  .suggestionsTable .tableHead div:nth-child(4),
+  .suggestionsTable .tableRow div:nth-child(4),
+  .suggestionsTable .tableHead div:nth-child(5),
+  .suggestionsTable .tableRow div:nth-child(5){
     grid-column: 1 / -1;
   }
 }

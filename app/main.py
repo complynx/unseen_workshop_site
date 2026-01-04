@@ -23,9 +23,9 @@ from pydantic_settings import (
     YamlConfigSettingsSource,
 )
 from pymongo.errors import DuplicateKeyError
+from tornado.concurrent import Future
 
 from .in_memory_db import Document, InMemoryClient, InMemoryCollection, InMemoryDatabase
-
 
 Database = AsyncIOMotorDatabase[Document] | InMemoryDatabase
 Collection = AsyncIOMotorCollection[Document] | InMemoryCollection
@@ -114,6 +114,8 @@ class Invite(BaseModel):
 class RecommendationEntry(BaseModel):
     name: str
     contact: str
+    processed: bool = False
+    registered: bool = False
 
 
 def recommendation_list_factory() -> list[RecommendationEntry]:
@@ -131,6 +133,94 @@ class PostApprovalForm(BaseModel):
         if len(self.opposite_role) > 3:
             raise ValueError("Up to 3 opposite-role recommendations are allowed.")
         return self
+
+
+def normalize_recommendation_entry(raw: Any) -> Dict[str, Any]:
+    entry: Dict[str, Any] = {"name": "", "contact": "", "processed": False, "registered": False}
+    if isinstance(raw, dict):
+        entry["name"] = str(raw.get("name") or "").strip() # type: ignore[unused-ignore]
+        entry["contact"] = str(raw.get("contact") or "").strip() # type: ignore[unused-ignore]
+        entry["processed"] = bool(raw.get("processed")) # type: ignore[unused-ignore]
+        entry["registered"] = bool(raw.get("registered")) # type: ignore[unused-ignore]
+    return entry
+
+
+def normalize_post_approval(raw: Any) -> Dict[str, Any]:
+    post_data: Dict[str, Any] = {"opposite": [], "same": None, "allergies": "", "whatsapp_opt_in": False}
+    if not isinstance(raw, dict):
+        return post_data
+
+    opposite_raw: Any = raw.get("opposite_role") # type: ignore[unused-ignore]
+    if isinstance(opposite_raw, list):
+        for item in opposite_raw: # type: ignore[unused-ignore]
+            entry = normalize_recommendation_entry(item)
+            if entry["name"] or entry["contact"]:
+                post_data["opposite"].append(entry)
+
+    same_raw = raw.get("same_role") # type: ignore[unused-ignore]
+    if isinstance(same_raw, dict):
+        entry = normalize_recommendation_entry(same_raw)
+        if entry["name"] or entry["contact"]:
+            post_data["same"] = entry
+
+    post_data["allergies"] = str(raw.get("allergies") or "") # type: ignore[unused-ignore]
+    post_data["whatsapp_opt_in"] = bool(raw.get("whatsapp_opt_in")) # type: ignore[unused-ignore]
+    return post_data
+
+
+def build_post_approval_payload(
+    opposite: list[Dict[str, Any]],
+    same: Optional[Dict[str, Any]],
+    allergies: Optional[str],
+    whatsapp_opt_in: bool,
+) -> Dict[str, Any]:
+    payload: Dict[str, Any] = {
+        "opposite_role": [],
+        "allergies": allergies or None,
+        "whatsapp_opt_in": bool(whatsapp_opt_in),
+        "same_role": None,
+    }
+
+    for entry in opposite:
+        name = str(entry.get("name") or "").strip()
+        contact = str(entry.get("contact") or "").strip()
+        if not (name and contact):
+            continue
+        payload["opposite_role"].append(
+            {
+                "name": name,
+                "contact": contact,
+                "processed": bool(entry.get("processed")),
+                "registered": bool(entry.get("registered")),
+            }
+        )
+
+    if same:
+        name = str(same.get("name") or "").strip()
+        contact = str(same.get("contact") or "").strip()
+        if name and contact:
+            payload["same_role"] = {
+                "name": name,
+                "contact": contact,
+                "processed": bool(same.get("processed")),
+                "registered": bool(same.get("registered")),
+            }
+
+    return payload
+
+
+def build_post_prefill(post_data: Dict[str, Any]) -> Dict[str, Any]:
+    opposite = list(post_data.get("opposite") or [])
+    while len(opposite) < 3:
+        opposite.append({"name": "", "contact": "", "processed": False, "registered": False})
+    opposite = opposite[:3]
+    same_entry = post_data.get("same") or {"name": "", "contact": "", "processed": False, "registered": False} # type: ignore[unused-ignore]
+    return {
+        "opposite": opposite,
+        "same": same_entry,
+        "allergies": post_data.get("allergies") or "",
+        "whatsapp_opt_in": bool(post_data.get("whatsapp_opt_in")),
+    }
 
 
 class RegistrationForm(BaseModel):
@@ -279,17 +369,17 @@ class BaseHandler(tornado.web.RequestHandler):
             return f"{base}{url}"
         return f"{base}/{url}"
 
-    def redirect(self, url: str, permanent: bool = False, status: Optional[int] = None) -> None: # type: ignore[override]
+    def redirect(self, url: str, permanent: bool = False, status: Optional[int] = None) -> None:
         super().redirect(self._with_base(url), permanent=permanent, status=status)
 
-    def reverse_url(self, name: str, *args: Any) -> str: # type: ignore[override]
+    def reverse_url(self, name: str, *args: Any) -> str:
         raw = super().reverse_url(name, *args)
         return self._with_base(raw)
 
-    def render(self, template_name: str, **kwargs: Any) -> None: # type: ignore[override]
+    def render(self, template_name: str, **kwargs: Any) -> Future[None]:
         kwargs.setdefault("fmt_ts", self.format_ts)
         kwargs.setdefault("base_path", self.base_path)
-        super().render(template_name, **kwargs)
+        return super().render(template_name, **kwargs)
 
     def write_error(self, status_code: int, **kwargs: Any) -> None:
         if status_code == 404:
@@ -435,7 +525,7 @@ class RegisterHandler(BaseHandler):
             raise RuntimeError("Unexpected insert id type.")
 
         try:
-            await self.db[self.cfg.invites_collection].delete_one({"code": code}) # type: ignore[unused-ignore]
+            await self.db[self.cfg.invites_collection].delete_one({"code": code})
         except Exception:
             pass
 
@@ -534,32 +624,8 @@ class PortalHandler(BaseHandler):
             name = f"{(item.get('first_name') or '').strip()} {(item.get('last_name') or '').strip()}".strip()
             participants.append(name or "Registered participant")
 
-        post_data_raw = user.get("post_approval")
-        post_data: Dict[str, Any] = {}
-        if isinstance(post_data_raw, dict):
-            typed_post: Dict[str, Any] = {}
-            for k, v in post_data_raw.items(): # type: ignore[unused-ignore]
-                typed_post[str(k)] = v # type: ignore[unused-ignore]
-            post_data = typed_post
-
-        opposite_raw = post_data.get("opposite_role")
-        opposite: List[Dict[str, Any]] = []
-        if isinstance(opposite_raw, list):
-            for raw_item in opposite_raw: # type: ignore[unused-ignore]
-                if isinstance(raw_item, dict):
-                    raw_item_dict: Dict[str, Any] = cast(Dict[str, Any], raw_item)
-                    opposite.append(raw_item_dict)
-                else:
-                    opposite.append({})
-        while len(opposite) < 3:
-            opposite.append({})
-        opposite = opposite[:3]
-        post_prefill: Dict[str, Any] = {
-            "opposite": opposite,
-            "same": post_data.get("same_role") if isinstance(post_data.get("same_role"), dict) else {},
-            "allergies": post_data.get("allergies") or "",
-            "whatsapp_opt_in": bool(post_data.get("whatsapp_opt_in")),
-        }
+        post_data = normalize_post_approval(user.get("post_approval"))
+        post_prefill = build_post_prefill(post_data)
 
         self.render(
             "templates/portal.html",
@@ -598,20 +664,51 @@ class PortalHandler(BaseHandler):
         def _flag(name: str) -> bool:
             return self.get_body_argument(name, "false").lower() in {"true", "on", "1", "yes"}
 
-        form_payload: Dict[str, Any] = {"opposite_role": [], "whatsapp_opt_in": False}
-        form_payload["allergies"] = self.get_body_argument("allergies", "").strip() or None
-        form_payload["whatsapp_opt_in"] = _flag("whatsapp_opt_in")
+        existing_post = normalize_post_approval(user.get("post_approval"))
 
+        allergies_val = self.get_body_argument("allergies", "").strip() or None
+        whatsapp_opt_in = _flag("whatsapp_opt_in")
+
+        opposite_existing = list(existing_post.get("opposite") or [])
+        updated_opposite: List[Dict[str, Any]] = []
         for idx in range(1, 4):
             name = self.get_body_argument(f"opp_name_{idx}", "").strip()
             contact = self.get_body_argument(f"opp_contact_{idx}", "").strip()
+            existing_entry = (opposite_existing[idx - 1] # type: ignore[unused-ignore]
+                              if (idx - 1 < len(opposite_existing))
+                              else {"name": "", "contact": "", "processed": False, "registered": False})
+            locked = bool(existing_entry.get("processed") or existing_entry.get("registered")) # type: ignore[unused-ignore]
+            if locked:
+                if existing_entry.get("name") or existing_entry.get("contact"): # type: ignore[unused-ignore]
+                    updated_opposite.append(existing_entry) # type: ignore[unused-ignore]
+                continue
             if name and contact:
-                form_payload["opposite_role"].append({"name": name, "contact": contact})
+                updated_opposite.append(
+                    {
+                        "name": name,
+                        "contact": contact,
+                        "processed": bool(existing_entry.get("processed")), # type: ignore[unused-ignore]
+                        "registered": bool(existing_entry.get("registered")), # type: ignore[unused-ignore]
+                    }
+                )
 
+        same_existing = existing_post.get("same") or {"name": "", "contact": "", "processed": False, "registered": False} # type: ignore[unused-ignore]
+        same_locked = bool(same_existing.get("processed") or same_existing.get("registered")) # type: ignore[unused-ignore]
         same_name = self.get_body_argument("same_name", "").strip()
         same_contact = self.get_body_argument("same_contact", "").strip()
-        if same_name and same_contact:
-            form_payload["same_role"] = {"name": same_name, "contact": same_contact}
+        updated_same: Optional[Dict[str, Any]] = None
+        if same_locked:
+            if same_existing.get("name") or same_existing.get("contact"): # type: ignore[unused-ignore]
+                updated_same = same_existing # type: ignore[unused-ignore]
+        elif same_name and same_contact:
+            updated_same = {
+                "name": same_name,
+                "contact": same_contact,
+                "processed": bool(same_existing.get("processed")), # type: ignore[unused-ignore]
+                "registered": bool(same_existing.get("registered")), # type: ignore[unused-ignore]
+            }
+
+        form_payload = build_post_approval_payload(updated_opposite, updated_same, allergies_val, whatsapp_opt_in)
 
         try:
             parsed = PostApprovalForm(**form_payload)
@@ -625,24 +722,8 @@ class PortalHandler(BaseHandler):
                 item: Document = cast(Document, item_doc)
                 name = f"{(item.get('first_name') or '').strip()} {(item.get('last_name') or '').strip()}".strip()
                 participants.append(name or "Registered participant")
-            opposite_raw = form_payload.get("opposite_role")
-            opposite: List[Dict[str, Any]] = []
-            if isinstance(opposite_raw, list):
-                for raw_item in opposite_raw: # type: ignore[unused-ignore]
-                    if isinstance(raw_item, dict):
-                        raw_item_dict: Dict[str, Any] = cast(Dict[str, Any], raw_item)
-                        opposite.append(raw_item_dict)
-                    else:
-                        opposite.append({})
-            while len(opposite) < 3:
-                opposite.append({})
-            opposite = opposite[:3]
-            post_prefill: Dict[str, Any] = {
-                "opposite": opposite,
-                "same": form_payload.get("same_role") or {},
-                "allergies": form_payload.get("allergies") or "",
-                "whatsapp_opt_in": bool(form_payload.get("whatsapp_opt_in")),
-            }
+            normalized = normalize_post_approval(form_payload)
+            post_prefill = build_post_prefill(normalized)
 
             self.render(
                 "templates/portal.html",
@@ -679,14 +760,76 @@ class AdminHandler(BaseHandler):
 
         users_cursor = users_coll.find().sort("created_at", -1)
         registrations: List[Document] = []
+        reg_stats: Dict[str, Dict[str, int]] = {
+            "pending_email": {"leader": 0, "follower": 0},
+            "registered": {"leader": 0, "follower": 0},
+            "paid": {"leader": 0, "follower": 0},
+        }
+        invite_suggestions: List[Dict[str, Any]] = []
         async for doc in users_cursor:
             doc_typed = cast(Document, doc)
-            registrations.append({**doc_typed, "_id": str(doc_typed["_id"])})
+            post_meta = normalize_post_approval(doc_typed.get("post_approval"))
+
+            role = str(doc_typed.get("role") or "").lower()
+            verified = bool(doc_typed.get("email_verified_at"))
+            paid = bool(doc_typed.get("payment_approved"))
+            if role in reg_stats["pending_email"]:
+                if not verified:
+                    reg_stats["pending_email"][role] += 1
+                elif paid:
+                    reg_stats["paid"][role] += 1
+                else:
+                    reg_stats["registered"][role] += 1
+
+            reg_dict: Document = {**doc_typed, "_id": str(doc_typed["_id"]), "post_meta": post_meta}
+            registrations.append(reg_dict)
+
+            source_name = f"{(doc_typed.get('first_name') or '').strip()} {(doc_typed.get('last_name') or '').strip()}".strip()
+            source_email = str(doc_typed.get("email") or "")
+            for idx, entry in enumerate(post_meta.get("opposite") or []):
+                if not (entry.get("name") or entry.get("contact")):
+                    continue
+                potential_role = "follower" if role == "leader" else "leader" if role == "follower" else "opposite role"
+                invite_suggestions.append(
+                    {
+                        "source_id": str(doc_typed["_id"]),
+                        "source_name": source_name or "Registered participant",
+                        "source_email": source_email,
+                        "source_role": role,
+                        "name": entry.get("name"),
+                        "contact": entry.get("contact"),
+                        "potential_role": potential_role,
+                        "processed": bool(entry.get("processed")),
+                        "registered": bool(entry.get("registered")),
+                        "kind": "opposite",
+                        "index": idx,
+                    }
+                )
+            same_entry = post_meta.get("same")
+            if same_entry and (same_entry.get("name") or same_entry.get("contact")):
+                potential_role = role if role in {"leader", "follower"} else "same role"
+                invite_suggestions.append(
+                    {
+                        "source_id": str(doc_typed["_id"]),
+                        "source_name": source_name or "Registered participant",
+                        "source_email": source_email,
+                        "source_role": role,
+                        "name": same_entry.get("name"),
+                        "contact": same_entry.get("contact"),
+                        "potential_role": potential_role,
+                        "processed": bool(same_entry.get("processed")),
+                        "registered": bool(same_entry.get("registered")),
+                        "kind": "same",
+                        "index": 0,
+                    }
+                )
 
         self.render(
             "templates/admin.html",
             invites=invites,
             registrations=registrations,
+            reg_stats=reg_stats,
+            invite_suggestions=invite_suggestions,
             base_url=self.cfg.app_base_url.rstrip("/"),
         )
 
@@ -764,6 +907,76 @@ class ApprovePaymentHandler(BaseHandler):
         self.redirect("/admin")
 
 
+class SuggestionStatusHandler(BaseHandler):
+    @tornado.web.authenticated
+    async def post(self, user_id: str) -> None:
+        if not self.current_user or self.current_user.get("role") != "admin":
+            raise tornado.web.HTTPError(403)
+
+        kind = self.get_body_argument("kind", "")
+        index_raw = self.get_body_argument("index", "0")
+        processed = self.get_body_argument("processed", "false").lower() in {"true", "on", "1", "yes"}
+        registered = self.get_body_argument("registered", "false").lower() in {"true", "on", "1", "yes"}
+
+        try:
+            idx = int(index_raw)
+        except Exception:
+            raise tornado.web.HTTPError(400)
+        if idx < 0:
+            raise tornado.web.HTTPError(400)
+
+        try:
+            user_oid = ObjectId(user_id)
+        except Exception:
+            raise tornado.web.HTTPError(404)
+
+        users_coll: Collection = self.db[self.cfg.users_collection]
+        user_doc = await users_coll.find_one({"_id": user_oid})
+        if not user_doc:
+            raise tornado.web.HTTPError(404)
+
+        post_data = normalize_post_approval(user_doc.get("post_approval"))
+        target: Optional[Dict[str, Any]] = None
+        if kind == "opposite":
+            if idx >= len(post_data.get("opposite") or []):
+                raise tornado.web.HTTPError(404)
+            target = (post_data.get("opposite") or [])[idx] # type: ignore[unused-ignore]
+        elif kind == "same":
+            if idx != 0 or not post_data.get("same"):
+                raise tornado.web.HTTPError(404)
+            target = post_data.get("same")
+        else:
+            raise tornado.web.HTTPError(400)
+
+        if not target or not (target.get("name") or target.get("contact")): # type: ignore[unused-ignore]
+            raise tornado.web.HTTPError(404)
+
+        target["processed"] = processed
+        target["registered"] = registered
+
+        payload = build_post_approval_payload(
+            list(post_data.get("opposite") or []),
+            post_data.get("same"),
+            post_data.get("allergies"),
+            bool(post_data.get("whatsapp_opt_in")),
+        )
+        try:
+            parsed = PostApprovalForm(**payload)
+        except ValidationError:
+            raise tornado.web.HTTPError(400)
+
+        await users_coll.update_one(
+            {"_id": user_oid},
+            {
+                "$set": {
+                    "post_approval": parsed.model_dump(),
+                    "updated_at": utcnow(),
+                }
+            },
+        )
+        self.redirect("/admin")
+
+
 class VerifyHandler(BaseHandler):
     def get(self) -> None:
         self.render("templates/verify.html", error=None, success=None, email=self.get_argument("email", ""), code=self.get_argument("code", ""))
@@ -816,12 +1029,13 @@ async def create_indexes(db: Database, cfg: Settings) -> None:
 
 
 def make_app(settings: Settings) -> tornado.web.Application:
+    db_client: AsyncIOMotorClient[Document] | InMemoryClient
     if settings.use_in_memory_db:
         db_client = InMemoryClient()
     else:
         if not settings.mongo_url:
             raise RuntimeError("mongo_url is required when not using in-memory database.")
-        db_client: AsyncIOMotorClient[Document] | InMemoryClient = AsyncIOMotorClient(settings.mongo_url, tz_aware=True)
+        db_client = AsyncIOMotorClient(settings.mongo_url, tz_aware=True)
     db: Database = db_client.get_database()
 
     parsed = urlparse(settings.app_base_url)
@@ -850,6 +1064,7 @@ def make_app(settings: Settings) -> tornado.web.Application:
         (r"/admin", AdminHandler, None),
         (r"/admin/invites", CreateInviteHandler, None),
         (r"/admin/approve/([A-Za-z0-9]+)", ApprovePaymentHandler, None),
+        (r"/admin/suggestions/([A-Za-z0-9]+)", SuggestionStatusHandler, None),
         (r"/verify", VerifyHandler, None),
     )
 

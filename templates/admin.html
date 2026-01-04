@@ -28,6 +28,34 @@
   <main>
     <section class="pageSection">
       <div class="wrap dashGrid adminGrid">
+        <div class="card balanceCard" style="grid-column: 1 / -1;">
+          <h3>Balance</h3>
+          <p class="fineprint">Leaders / Followers by stage</p>
+          <div class="balanceGrid">
+            <div class="balanceItem">
+              <div class="fineprint">Pending email verification</div>
+              <div class="balanceCounts">
+                <span class="countBadge">L <b>{{ reg_stats.get("pending_email", {}).get("leader", 0) }}</b></span>
+                <span class="countBadge">F <b>{{ reg_stats.get("pending_email", {}).get("follower", 0) }}</b></span>
+              </div>
+            </div>
+            <div class="balanceItem">
+              <div class="fineprint">Registered</div>
+              <div class="balanceCounts">
+                <span class="countBadge">L <b>{{ reg_stats.get("registered", {}).get("leader", 0) }}</b></span>
+                <span class="countBadge">F <b>{{ reg_stats.get("registered", {}).get("follower", 0) }}</b></span>
+              </div>
+            </div>
+            <div class="balanceItem">
+              <div class="fineprint">Paid</div>
+              <div class="balanceCounts">
+                <span class="countBadge">L <b>{{ reg_stats.get("paid", {}).get("leader", 0) }}</b></span>
+                <span class="countBadge">F <b>{{ reg_stats.get("paid", {}).get("follower", 0) }}</b></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card">
           <h3>Create invitation</h3>
           <p class="fineprint">Base URL: {{ base_url }}/register/&lt;code&gt;</p>
@@ -79,29 +107,36 @@
 
         <div class="card" style="grid-column: 1 / -1;">
           <h3>Registrations</h3>
-          <div class="tableSimple">
+          <div class="tableSimple registrationsTable">
             <div class="tableHead">
-              <div>Name</div><div>Email</div><div>Role</div><div>Level</div><div>Status</div><div>Actions</div>
+              <div>Name</div><div>Email</div><div>Role / Level</div><div>Phone</div><div>Group</div><div>Status</div><div>Actions</div>
             </div>
             {% for reg in registrations %}
+            {% set post_meta = reg.get("post_meta", {}) %}
+            {% set verified = reg.get("email_verified_at") %}
+            {% set paid = reg.get("payment_approved") %}
             <div class="tableRow">
               <div>{{ reg.get("first_name") }} {{ reg.get("last_name") }}</div>
               <div class="fineprint">{{ reg.get("email") }}</div>
-              <div>{{ reg.get("role","").title() }}</div>
-              <div>{{ reg.get("level","").title() }}</div>
+              <div>{{ reg.get("role","").title() }} / {{ reg.get("level","").title() }}</div>
+              <div>{{ reg.get("phone") }}</div>
               <div>
-                {% if reg.get("payment_approved") %}
-                  <span class="statusBadge success">Payment approved</span>
+                {% if post_meta.get("whatsapp_opt_in") %}
+                  <span class="statusBadge success">Requested</span>
                 {% else %}
-                  <span class="statusBadge muted">Awaiting payment</span>
-                {% end %}
-                {% if reg.get("email_verified_at") %}
-                  <span class="statusBadge success">Email verified</span>
-                {% else %}
-                  <span class="statusBadge muted">Email pending</span>
+                  <span class="fineprint">No request</span>
                 {% end %}
               </div>
               <div>
+                {% if not verified %}
+                  <span class="statusBadge muted">Email pending</span>
+                {% elif not paid %}
+                  <span class="statusBadge warn">Awaiting payment</span>
+                {% else %}
+                  <span class="statusBadge success">Paid</span>
+                {% end %}
+              </div>
+              <div class="rowActions">
                 <form method="post" action="{{ base_path }}/admin/approve/{{ reg.get('_id') }}" style="display:flex; gap:8px;">
                   {% if reg.get("payment_approved") %}
                   <button class="btn" name="action" value="revoke" type="submit">Revoke</button>
@@ -109,11 +144,101 @@
                   <button class="btn primary" name="action" value="approve" type="submit">Approve</button>
                   {% end %}
                 </form>
+                <button class="btn ghost detailsToggle" type="button" aria-expanded="false" data-details-target="{{ reg.get('_id') }}">
+                  <span class="chevron"></span>
+                </button>
+              </div>
+            </div>
+            <div class="regDetails" data-details="{{ reg.get('_id') }}" hidden>
+              <div class="regDetailGrid">
+                <div>
+                  <div class="fineprint">Invite code</div>
+                  <div>{{ reg.get("invite_code") or "-" }}</div>
+                </div>
+                <div>
+                  <div class="fineprint">Registered</div>
+                  <div>{{ fmt_ts(reg.get("created_at")) }}</div>
+                </div>
+                <div>
+                  <div class="fineprint">Partner</div>
+                  <div>
+                    {% if reg.get("partner_name") %}
+                      {{ reg.get("partner_name") }}{% if reg.get("partner_contact") %} ({{ reg.get("partner_contact") }}){% end %}
+                    {% else %}
+                      -
+                    {% end %}
+                  </div>
+                </div>
+                <div>
+                  <div class="fineprint">Special conditions</div>
+                  <div>{{ reg.get("special_conditions") or "-" }}</div>
+                </div>
+                <div>
+                  <div class="fineprint">Allergies / notes</div>
+                  <div>{{ post_meta.get("allergies") or "-" }}</div>
+                </div>
+                <div>
+                  <div class="fineprint">WhatsApp group</div>
+                  <div>{% if post_meta.get("whatsapp_opt_in") %}Requested{% else %}-{% end %}</div>
+                </div>
+                {% for rec in post_meta.get("opposite") or [] %}
+                <div>
+                  <div class="fineprint">Opposite rec</div>
+                  <div>{{ rec.get("name") }} ({{ rec.get("contact") }})</div>
+                  <div class="fineprint">Status: {% if rec.get("registered") %}Registered{% elif rec.get("processed") %}Processed{% else %}Open{% end %}</div>
+                </div>
+                {% end %}
+                {% if post_meta.get("same") %}
+                <div>
+                  <div class="fineprint">Same role rec</div>
+                  <div>{{ post_meta.get("same").get("name") }} ({{ post_meta.get("same").get("contact") }})</div>
+                  <div class="fineprint">Status: {% if post_meta.get("same").get("registered") %}Registered{% elif post_meta.get("same").get("processed") %}Processed{% else %}Open{% end %}</div>
+                </div>
+                {% end %}
               </div>
             </div>
             {% end %}
             {% if not registrations %}
             <div class="fineprint">No registrations yet.</div>
+            {% end %}
+          </div>
+        </div>
+
+        <div class="card" style="grid-column: 1 / -1;">
+          <h3>Invite suggestions</h3>
+          <p class="fineprint">From participant recommendations</p>
+          <div class="tableSimple suggestionsTable">
+            <div class="tableHead">
+              <div>Suggested</div><div>Contact</div><div>Potential role</div><div>Source</div><div>Status</div>
+            </div>
+            {% for sug in invite_suggestions %}
+            <div class="tableRow">
+              <div>{{ sug.get("name") }}</div>
+              <div class="fineprint">{{ sug.get("contact") }}</div>
+              <div>{{ sug.get("potential_role","").title() }}</div>
+              <div>
+                <div>{{ sug.get("source_name") }}</div>
+                <div class="fineprint">{{ sug.get("source_email") }}</div>
+                <div class="fineprint">Role: {{ sug.get("source_role","").title() or "-" }}</div>
+              </div>
+              <div>
+                <form method="post" action="{{ base_path }}/admin/suggestions/{{ sug.get('source_id') }}" class="suggestionForm" data-autosubmit="true">
+                  <input type="hidden" name="kind" value="{{ sug.get('kind') }}">
+                  <input type="hidden" name="index" value="{{ sug.get('index') }}">
+                  <label class="checkboxInline">
+                    <input type="checkbox" name="processed" value="true" {% if sug.get("processed") %}checked{% end %}>
+                    <span>Processed</span>
+                  </label>
+                  <label class="checkboxInline">
+                    <input type="checkbox" name="registered" value="true" {% if sug.get("registered") %}checked{% end %}>
+                    <span>Registered</span>
+                  </label>
+                </form>
+              </div>
+            </div>
+            {% end %}
+            {% if not invite_suggestions %}
+            <div class="fineprint">No suggestions yet.</div>
             {% end %}
           </div>
         </div>
@@ -160,6 +285,29 @@
         copyText(link)
           .then(() => updateLabel(btn, 'Copied!'))
           .catch(() => updateLabel(btn, 'Copy failed'));
+      });
+
+      document.addEventListener('click', (evt) => {
+        const toggle = evt.target.closest('[data-details-target]');
+        if (!toggle) return;
+        const id = toggle.getAttribute('data-details-target');
+        if (!id) return;
+        const panel = document.querySelector(`[data-details="${id}"]`);
+        if (!panel) return;
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        if (expanded) {
+          panel.setAttribute('hidden', '');
+          toggle.setAttribute('aria-expanded', 'false');
+        } else {
+          panel.removeAttribute('hidden');
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      document.addEventListener('change', (evt) => {
+        const form = evt.target.closest('form[data-autosubmit="true"]');
+        if (!form) return;
+        form.submit();
       });
     })();
   </script>
