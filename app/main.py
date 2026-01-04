@@ -452,6 +452,31 @@ class RegisterHandler(BaseHandler):
         except Exception:
             pass
 
+        admin_link = f"{self.cfg.app_base_url.rstrip('/')}/admin"
+        partner_line = "Yes" if record.want_partner else "No"
+        try:
+            send_email(
+                self.cfg,
+                to_email=str(self.cfg.admin_email),
+                subject="New UNSEEN registration",
+                body=(
+                    "Hello,\n\n"
+                    "A new participant just registered for UNSEEN.\n\n"
+                    f"Name: {record.first_name} {record.last_name}\n"
+                    f"Email: {record.email}\n"
+                    f"Phone: {record.phone}\n"
+                    f"Role/Level: {record.role.title()} / {record.level.title()}\n"
+                    f"Invite code: {record.invite_code}\n"
+                    f"Registering with partner: {partner_line}\n"
+                    f"Partner name: {record.partner_name or '-'}\n"
+                    f"Partner contact: {record.partner_contact or '-'}\n"
+                    f"Special conditions: {record.special_conditions or '-'}\n\n"
+                    f"View in admin: {admin_link}"
+                ),
+            )
+        except Exception:
+            pass
+
         self.set_secure_cookie(
             "session",
             tornado.escape.json_encode(
@@ -700,10 +725,37 @@ class ApprovePaymentHandler(BaseHandler):
             raise tornado.web.HTTPError(404)
 
         users_coll: Collection = self.db[self.cfg.users_collection]
+        user_doc = await users_coll.find_one({"_id": user_oid})
+        if not user_doc:
+            raise tornado.web.HTTPError(404)
+
+        already_approved = bool(user_doc.get("payment_approved"))
         await users_coll.update_one(
             {"_id": user_oid},
             {"$set": {"payment_approved": approved, "updated_at": utcnow()}},
         )
+
+        if approved and not already_approved:
+            email = user_doc.get("email")
+            if isinstance(email, str) and email:
+                first_name = str(user_doc.get("first_name") or "").strip() or "there"
+                portal_link = f"{self.cfg.app_base_url.rstrip('/')}/portal"
+                try:
+                    send_email(
+                        self.cfg,
+                        to_email=email,
+                        subject="You're approved for UNSEEN",
+                        body=(
+                            f"Hi {first_name},\n\n"
+                            "Great news! Your registration has been approved.\n"
+                            "You can now log in to the portal and confirm some last details or invite other participants.\n"
+                            "Inviting participants you like is a great way to share the experience.\n\n"
+                            f"Portal: {portal_link}\n\n"
+                            "If you have any questions, just reply to this email."
+                        ),
+                    )
+                except Exception:
+                    pass
         self.redirect("/admin")
 
 
