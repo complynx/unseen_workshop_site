@@ -241,6 +241,11 @@ def generate_verification_code() -> str:
 
 class BaseHandler(tornado.web.RequestHandler):
     @property
+    def local_tz(self) -> dt.tzinfo:
+        tz = dt.datetime.now().astimezone().tzinfo
+        return tz or dt.timezone.utc
+
+    @property
     def cfg(self) -> Settings:
         return cast(Settings, self.settings["app_settings"])
 
@@ -282,6 +287,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return self._with_base(raw)
 
     def render(self, template_name: str, **kwargs: Any) -> None: # type: ignore[override]
+        kwargs.setdefault("fmt_ts", self.format_ts)
         kwargs.setdefault("base_path", self.base_path)
         super().render(template_name, **kwargs)
 
@@ -290,6 +296,16 @@ class BaseHandler(tornado.web.RequestHandler):
             self.render("templates/error.html", title="Not found", message="Page not found.")
             return
         super().write_error(status_code, **kwargs)
+
+    def format_ts(self, value: Any) -> str:
+        """Format a datetime in the server's local timezone without fractional seconds."""
+        if not isinstance(value, dt.datetime):
+            return ""
+        dt_obj = value
+        if dt_obj.tzinfo is None:
+            dt_obj = dt_obj.replace(tzinfo=dt.timezone.utc)
+        local_dt = dt_obj.astimezone(self.local_tz).replace(microsecond=0)
+        return local_dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class LandingHandler(BaseHandler):

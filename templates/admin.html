@@ -27,7 +27,7 @@
 
   <main>
     <section class="pageSection">
-      <div class="wrap dashGrid">
+      <div class="wrap dashGrid adminGrid">
         <div class="card">
           <h3>Create invitation</h3>
           <p class="fineprint">Base URL: {{ base_url }}/register/&lt;code&gt;</p>
@@ -50,7 +50,7 @@
 
         <div class="card">
           <h3>Invitations</h3>
-          <div class="tableSimple">
+          <div class="tableSimple invitesTable">
             <div class="tableHead">
               <div>Label</div><div>Code</div><div>Link</div><div>Created</div>
             </div>
@@ -58,8 +58,17 @@
             <div class="tableRow">
               <div>{{ inv.get("label") }}</div>
               <div><code>{{ inv.get("code") }}</code></div>
-              <div class="fineprint">{{ base_url }}/register/{{ inv.get("code") }}</div>
-              <div class="fineprint">{{ inv.get("created_at") }}</div>
+              <div class="inviteLinkCell">
+                <a
+                  class="fineprint inviteLink"
+                  href="{{ base_url }}/register/{{ inv.get('code') }}"
+                  data-copy-link="{{ base_url }}/register/{{ inv.get('code') }}"
+                  title="Click to copy invite link"
+                >
+                  {{ base_url }}/register/{{ inv.get("code") }}
+                </a>
+              </div>
+              <div class="fineprint inviteCreated">{{ fmt_ts(inv.get("created_at")) }}</div>
             </div>
             {% end %}
             {% if not invites %}
@@ -111,5 +120,48 @@
       </div>
     </section>
   </main>
+
+  <script>
+    (() => {
+      const copyText = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text);
+        }
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.top = '-1000px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try{
+          const ok = document.execCommand('copy');
+          ta.remove();
+          return ok ? Promise.resolve() : Promise.reject(new Error('copy failed'));
+        }catch(err){
+          ta.remove();
+          return Promise.reject(err);
+        }
+      };
+
+      const updateLabel = (btn, msg) => {
+        const original = btn.dataset.originalLabel || btn.textContent.trim();
+        if (!btn.dataset.originalLabel) btn.dataset.originalLabel = original;
+        btn.textContent = msg;
+        setTimeout(() => { btn.textContent = btn.dataset.originalLabel; }, 1200);
+      };
+
+      document.addEventListener('click', (evt) => {
+        const btn = evt.target.closest('[data-copy-link]');
+        if (!btn) return;
+        evt.preventDefault();
+        const link = btn.getAttribute('data-copy-link');
+        if (!link) return;
+        copyText(link)
+          .then(() => updateLabel(btn, 'Copied!'))
+          .catch(() => updateLabel(btn, 'Copy failed'));
+      });
+    })();
+  </script>
 </body>
 </html>
