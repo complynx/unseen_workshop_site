@@ -19,4 +19,5 @@ COPY . .
 # Default port (configurable via UNSEEN_PORT or config.yaml)
 EXPOSE 8888
 
-CMD ["python", "app/main.py"]
+# Run as a module so package-relative imports work.
+CMD ["python", "-m", "app.main"]
