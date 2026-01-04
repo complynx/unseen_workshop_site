@@ -57,7 +57,14 @@ class InMemoryCollection:
         if not filt:
             return True
         for key, value in filt.items():
-            if doc.get(key) != value:
+            current = doc.get(key)
+            if isinstance(value, dict):
+                if "$ne" in value and current == value["$ne"]:
+                    return False
+                if "$nin" in value and current in value["$nin"]:
+                    return False
+                continue
+            if current != value:
                 return False
         return True
 

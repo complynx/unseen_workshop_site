@@ -109,6 +109,12 @@ class Invite(BaseModel):
     label: str
     created_by: str
     created_at: dt.datetime = Field(default_factory=utcnow)
+    updated_at: dt.datetime = Field(default_factory=utcnow)
+    status: str = "active"
+    used_at: Optional[dt.datetime] = None
+    used_by: Optional[str] = None
+    deleted_at: Optional[dt.datetime] = None
+    deleted_by: Optional[str] = None
 
 
 class RecommendationEntry(BaseModel):
@@ -277,6 +283,8 @@ class RegistrationRecord(BaseModel):
     email_verification_expires_at: Optional[dt.datetime] = None
     email_verified_at: Optional[dt.datetime] = None
     payment_approved: bool = False
+    admin_comment: Optional[str] = None
+    assigned_price: Optional[str] = None
     post_approval: PostApprovalForm = Field(default_factory=PostApprovalForm)
     created_at: dt.datetime = Field(default_factory=utcnow)
     updated_at: dt.datetime = Field(default_factory=utcnow)
@@ -455,14 +463,18 @@ class LogoutHandler(BaseHandler):
 class RegisterHandler(BaseHandler):
     async def get(self, code: str) -> None:
         code = code.lower()
-        invite = await self.db[self.cfg.invites_collection].find_one({"code": code})
+        invite = await self.db[self.cfg.invites_collection].find_one(
+            {"code": code, "status": {"$nin": ["deleted", "used"]}}
+        )
         if not invite:
             raise tornado.web.HTTPError(404)
         self.render("templates/register.html", code=code, invite=invite, errors=None, values={})
 
     async def post(self, code: str) -> None:
         code = code.lower()
-        invite = await self.db[self.cfg.invites_collection].find_one({"code": code})
+        invite = await self.db[self.cfg.invites_collection].find_one(
+            {"code": code, "status": {"$nin": ["deleted", "used"]}}
+        )
         if not invite:
             raise tornado.web.HTTPError(404)
 
@@ -525,7 +537,17 @@ class RegisterHandler(BaseHandler):
             raise RuntimeError("Unexpected insert id type.")
 
         try:
-            await self.db[self.cfg.invites_collection].delete_one({"code": code})
+            await self.db[self.cfg.invites_collection].update_one(
+                {"code": code},
+                {
+                    "$set": {
+                        "status": "used",
+                        "used_at": utcnow(),
+                        "used_by": str(record.email),
+                        "updated_at": utcnow(),
+                    }
+                },
+            )
         except Exception:
             pass
 
@@ -865,6 +887,29 @@ class CreateInviteHandler(BaseHandler):
         self.redirect("/admin")
 
 
+class InviteStatusHandler(BaseHandler):
+    @tornado.web.authenticated
+    async def post(self, code: str) -> None:
+        if not self.current_user or self.current_user.get("role") != "admin":
+            raise tornado.web.HTTPError(403)
+
+        code_lower = code.lower()
+        invites_coll: Collection = self.db[self.cfg.invites_collection]
+        now = utcnow()
+        await invites_coll.update_one(
+            {"code": code_lower, "status": {"$ne": "used"}},
+            {
+                "$set": {
+                    "status": "deleted",
+                    "deleted_at": now,
+                    "deleted_by": self.current_user.get("email"),
+                    "updated_at": now,
+                }
+            },
+        )
+        self.redirect("/admin")
+
+
 class ApprovePaymentHandler(BaseHandler):
     @tornado.web.authenticated
     async def post(self, user_id: str) -> None:
@@ -911,6 +956,38 @@ class ApprovePaymentHandler(BaseHandler):
                     )
                 except Exception:
                     pass
+        self.redirect("/admin")
+
+
+class RegistrationMetaHandler(BaseHandler):
+    @tornado.web.authenticated
+    async def post(self, user_id: str) -> None:
+        if not self.current_user or self.current_user.get("role") != "admin":
+            raise tornado.web.HTTPError(403)
+
+        try:
+            user_oid = ObjectId(user_id)
+        except Exception:
+            raise tornado.web.HTTPError(404)
+
+        comment = self.get_body_argument("admin_comment", "").strip()
+        assigned_price = self.get_body_argument("assigned_price", "").strip()
+
+        users_coll: Collection = self.db[self.cfg.users_collection]
+        result = await users_coll.update_one(
+            {"_id": user_oid},
+            {
+                "$set": {
+                    "admin_comment": comment or None,
+                    "assigned_price": assigned_price or None,
+                    "updated_at": utcnow(),
+                }
+            },
+        )
+
+        if result.matched_count == 0:
+            raise tornado.web.HTTPError(404)
+
         self.redirect("/admin")
 
 
@@ -1070,7 +1147,9 @@ def make_app(settings: Settings) -> tornado.web.Application:
         (r"/portal", PortalHandler, None),
         (r"/admin", AdminHandler, None),
         (r"/admin/invites", CreateInviteHandler, None),
+        (r"/admin/invites/([A-Za-z0-9\\-_]+)/delete", InviteStatusHandler, None),
         (r"/admin/approve/([A-Za-z0-9]+)", ApprovePaymentHandler, None),
+        (r"/admin/registrations/([A-Za-z0-9]+)/meta", RegistrationMetaHandler, None),
         (r"/admin/suggestions/([A-Za-z0-9]+)", SuggestionStatusHandler, None),
         (r"/verify", VerifyHandler, None),
     )

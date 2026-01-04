@@ -77,15 +77,50 @@
 
         <div class="card">
           <h3>Invitations</h3>
+          <div class="tableToolbar">
+            <button class="btn ghost" type="button" id="toggle-archived-invites" aria-pressed="false">Show used / deleted</button>
+          </div>
           <div class="tableSimple invitesTable">
             <div class="tableHead">
-              <div>Label</div><div>Code</div><div>Link</div><div>Created</div>
+              <div>Label</div><div>Code</div><div>Status</div><div>Created</div><div>Actions</div>
             </div>
             {% for inv in invites %}
-            <div class="tableRow">
+            {% set invite_status = (inv.get("status") or "active").lower() %}
+            {% set invite_archived = invite_status in ["used", "deleted"] %}
+            <div
+              class="tableRow"
+              data-invite-row="true"
+              data-invite-status="{{ invite_status }}"
+              data-archived="{{ 'true' if invite_archived else 'false' }}"
+            >
               <div>{{ inv.get("label") }}</div>
               <div><code>{{ inv.get("code") }}</code></div>
-              <div class="inviteLinkCell">
+              <div>
+                {% if invite_status == "used" %}
+                  <span class="statusBadge success">Used</span>
+                  <div class="fineprint">{{ fmt_ts(inv.get("used_at")) }}</div>
+                  {% if inv.get("used_by") %}
+                    <div class="fineprint">By {{ inv.get("used_by") }}</div>
+                  {% end %}
+                {% elif invite_status == "deleted" %}
+                  <span class="statusBadge muted">Deleted</span>
+                  <div class="fineprint">{{ fmt_ts(inv.get("deleted_at")) }}</div>
+                {% else %}
+                  <span class="statusBadge">Active</span>
+                {% end %}
+              </div>
+              <div class="fineprint inviteCreated">{{ fmt_ts(inv.get("created_at")) }}</div>
+              <div>
+                {% if invite_status == "active" %}
+                <form method="post" action="{{ base_path }}/admin/invites/{{ inv.get('code') }}/delete">
+                  <button class="btn" type="submit">Delete</button>
+                </form>
+                {% else %}
+                  <span class="fineprint">-</span>
+                {% end %}
+              </div>
+              <div class="inviteLinkRow">
+                <span class="fineprint">Link</span>
                 <a
                   class="fineprint inviteLink"
                   href="{{ base_url }}/register/{{ inv.get('code') }}"
@@ -95,7 +130,6 @@
                   {{ base_url }}/register/{{ inv.get("code") }}
                 </a>
               </div>
-              <div class="fineprint inviteCreated">{{ fmt_ts(inv.get("created_at")) }}</div>
             </div>
             {% end %}
             {% if not invites %}
@@ -213,6 +247,19 @@
                 </div>
                 {% end %}
               </div>
+              <form class="adminNotesForm" method="post" action="{{ base_path }}/admin/registrations/{{ reg.get('_id') }}/meta">
+                <div>
+                  <label for="assigned_price_{{ reg.get('_id') }}">Assigned price</label>
+                  <input type="text" id="assigned_price_{{ reg.get('_id') }}" name="assigned_price" placeholder="e.g. 120 EUR" value="{{ reg.get('assigned_price') or '' }}">
+                </div>
+                <div>
+                  <label for="admin_comment_{{ reg.get('_id') }}">Admin comments</label>
+                  <textarea id="admin_comment_{{ reg.get('_id') }}" name="admin_comment" placeholder="Notes only admins see">{{ reg.get("admin_comment") or "" }}</textarea>
+                </div>
+                <div class="formActions">
+                  <button class="btn primary" type="submit">Save notes</button>
+                </div>
+              </form>
             </div>
             {% end %}
             {% if not registrations %}
@@ -358,6 +405,35 @@
         if (!form) return;
         form.submit();
       });
+
+      const inviteToggle = document.getElementById('toggle-archived-invites');
+      const inviteRows = Array.from(document.querySelectorAll('[data-invite-row="true"]'));
+      let showArchivedInvites = false;
+
+      const updateInviteToggleLabel = () => {
+        if (!inviteToggle) return;
+        inviteToggle.textContent = showArchivedInvites ? 'Hide used / deleted' : 'Show used / deleted';
+        inviteToggle.setAttribute('aria-pressed', showArchivedInvites ? 'true' : 'false');
+      };
+
+      const applyInviteFilter = () => {
+        inviteRows.forEach((row) => {
+          const archived = row.dataset.archived === 'true';
+          row.classList.toggle('is-hidden', archived && !showArchivedInvites);
+        });
+      };
+
+      if (inviteToggle) {
+        updateInviteToggleLabel();
+        applyInviteFilter();
+        inviteToggle.addEventListener('click', () => {
+          showArchivedInvites = !showArchivedInvites;
+          updateInviteToggleLabel();
+          applyInviteFilter();
+        });
+      } else {
+        applyInviteFilter();
+      }
 
       const filterUnprocessed = document.getElementById('filter-unprocessed');
       const filterUnregistered = document.getElementById('filter-unregistered');
