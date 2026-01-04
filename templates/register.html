@@ -29,7 +29,7 @@
       <div class="wrap applyGrid">
         <div class="card">
           <h3>Private invitation</h3>
-          <p>You were invited with code <b>{{ code }}</b>. Please register carefully; we may check ID on arrival.</p>
+          <p>You were invited to the <a href="{{ base_path or '/' }}">UNSEEN blindfolded workshop</a>. Please register carefully; we may check ID on arrival.</p>
           <p class="fineprint">Invites are single-person; if you wish to register with a partner of the opposite role, tick the checkbox below and add their details.</p>
           {% if errors %}
           <div class="alert">
@@ -102,7 +102,7 @@
                 <input type="password" id="password_confirm" name="password_confirm" required>
               </div>
               <div class="checkboxRow">
-                <label for="want_partner" style="display:flex; gap:10px; align-items:flex-start;">
+                <label for="want_partner">
                   <input type="checkbox" id="want_partner" name="want_partner" value="true" {% if values.get('want_partner') %}checked{% end %}>
                   <span>I want to register with a partner of an opposite role.</span>
                 </label>
@@ -120,6 +120,7 @@
                   <input type="text" id="partner_contact" name="partner_contact" value="{{ values.get('partner_contact','') }}">
                 </div>
               </div>
+              <p class="fineprint">We may decline your invitation with your partner if there is no place available for the opposite role, or if there are safety concerns.</p>
             </div>
 
             <div>
@@ -128,14 +129,14 @@
             </div>
 
             <div class="checkboxRow">
-              <label style="display:flex; gap:10px; align-items:flex-start;">
+              <label>
                 <input type="checkbox" name="accept_rules" value="true" {% if values.get('accept_rules') %}checked{% end %} required>
-                <span>I accept the workshop rules and Code of Conduct (safety-first, blindfold rules, sober policy).</span>
+                <span>I accept the workshop rules and Code of Conduct (safety-first, blindfold rules, sober policy) and confirm I have read the <a href="{{ base_path or '/' }}#safety">safety rules</a>.</span>
               </label>
             </div>
 
             <div class="checkboxRow">
-              <label style="display:flex; gap:10px; align-items:flex-start;">
+              <label>
                 <input type="checkbox" name="consent_data" value="true" {% if values.get('consent_data') %}checked{% end %} required>
                 <span>I consent to store and process my data for the purpose of this workshop.</span>
               </label>
@@ -150,7 +151,7 @@
           </form>
         </div>
 
-        <div class="card">
+        <div class="card" id="safety">
           <h3>Safety-first container</h3>
           <ul>
             <li>Bring a government-issued ID that matches the name above. For safety we may check it at arrival.</li>
