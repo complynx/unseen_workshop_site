@@ -741,25 +741,41 @@ def make_app(settings: Settings) -> tornado.web.Application:
     static_prefix = f"{base_path}/static/" if base_path else "/static/"
     login_path = f"{base_path}/login" if base_path else "/login"
 
-    handlers: Sequence[tornado.routing.Rule] = [
-        tornado.web.url(r"/", LandingHandler, name="home"),
-        tornado.web.url(r"/login", LoginHandler, name="login"),
-        tornado.web.url(r"/logout", LogoutHandler),
-        tornado.web.url(r"/register/([A-Za-z0-9\\-_]+)", RegisterHandler),
-        tornado.web.url(r"/portal", PortalHandler),
-        tornado.web.url(r"/admin", AdminHandler),
-        tornado.web.url(r"/admin/invites", CreateInviteHandler),
-        tornado.web.url(r"/admin/approve/([A-Za-z0-9]+)", ApprovePaymentHandler),
-        tornado.web.url(r"/verify", VerifyHandler),
-    ]
+    def _prefixed(pattern: str) -> str:
+        if not base_path:
+            return pattern
+        base = base_path.rstrip("/")
+        if not base:
+            return pattern
+        if pattern == "/":
+            return f"{base}/?"
+        return f"{base}{pattern}"
 
+    route_specs: Sequence[tuple[str, type[BaseHandler], Optional[str]]] = (
+        (r"/", LandingHandler, "home"),
+        (r"/login", LoginHandler, "login"),
+        (r"/logout", LogoutHandler, None),
+        (r"/register/([A-Za-z0-9\\-_]+)", RegisterHandler, None),
+        (r"/portal", PortalHandler, None),
+        (r"/admin", AdminHandler, None),
+        (r"/admin/invites", CreateInviteHandler, None),
+        (r"/admin/approve/([A-Za-z0-9]+)", ApprovePaymentHandler, None),
+        (r"/verify", VerifyHandler, None),
+    )
+
+    handlers: list[tornado.routing.Rule] = []
+    for pattern, handler, name in route_specs:
+        handlers.append(tornado.web.url(_prefixed(pattern), handler, name=name))
+
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    static_path = os.path.join(project_root, "static")
     settings_dict: Dict[str, Any] = {
         "app_settings": settings,
         "db": db,
         "cookie_secret": settings.cookie_secret,
         "login_url": login_path,
-        "template_path": str(os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))),
-        "static_path": str(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static"))),
+        "template_path": project_root,
+        "static_path": static_path,
         "static_url_prefix": static_prefix,
         "base_path": base_path,
         "xsrf_cookies": False,
