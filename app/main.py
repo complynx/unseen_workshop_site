@@ -1,3 +1,4 @@
+import asyncio
 import datetime as dt
 import hashlib
 import hmac
@@ -281,6 +282,8 @@ class RegistrationRecord(BaseModel):
     email_proof_sent_at: Optional[dt.datetime] = None
     email_verification_code: Optional[str] = None
     email_verification_expires_at: Optional[dt.datetime] = None
+    email_verification_attempts: int = 0
+    email_verification_last_sent_at: Optional[dt.datetime] = None
     email_verified_at: Optional[dt.datetime] = None
     payment_approved: bool = False
     admin_comment: Optional[str] = None
@@ -335,6 +338,10 @@ def send_email(settings: Settings, to_email: str, subject: str, body: str) -> No
 
 def generate_verification_code() -> str:
     return secrets.token_urlsafe(6).replace("-", "")[:8].upper()
+
+EMAIL_VERIFICATION_EXPIRY = dt.timedelta(hours=6)
+VERIFICATION_ATTEMPT_LIMIT = 5
+VERIFICATION_RESEND_COOLDOWN = dt.timedelta(minutes=5)
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -498,6 +505,8 @@ class RegisterHandler(BaseHandler):
             )
             return
 
+        now = utcnow()
+        verification_code = generate_verification_code()
         record = RegistrationRecord(
             invite_code=code,
             first_name=form.first_name.strip(),
@@ -514,9 +523,10 @@ class RegisterHandler(BaseHandler):
             special_conditions=form.special_conditions.strip() if form.special_conditions else None,
             accept_rules=form.accept_rules,
             consent_data=form.consent_data,
-            email_proof_sent_at=utcnow(),
-            email_verification_code=generate_verification_code(),
-            email_verification_expires_at=utcnow() + dt.timedelta(hours=6),
+            email_proof_sent_at=now,
+            email_verification_code=verification_code,
+            email_verification_expires_at=now + EMAIL_VERIFICATION_EXPIRY,
+            email_verification_last_sent_at=now,
         )
 
         users: Collection = self.db[self.cfg.users_collection]
@@ -1062,46 +1072,214 @@ class SuggestionStatusHandler(BaseHandler):
 
 
 class VerifyHandler(BaseHandler):
-    def get(self) -> None:
-        self.render("templates/verify.html", error=None, success=None, email=self.get_argument("email", ""), code=self.get_argument("code", ""))
+    async def _process_verification(self, email: str, code: str) -> tuple[Optional[str], Optional[str]]:
+        await asyncio.sleep(0.35)
 
-    async def post(self) -> None:
-        email = self.get_body_argument("email", "").strip().lower()
-        code = self.get_body_argument("code", "").strip().upper()
-        if not email or not code:
-            self.render("templates/verify.html", error="Email and code are required.", success=None, email=email, code=code)
-            return
+        email_clean = email.strip().lower()
+        code_clean = code.strip().upper()
+
+        if not email_clean or not code_clean:
+            return "Email and code are required.", None
 
         users: Collection = self.db[self.cfg.users_collection]
-        user = await users.find_one({"email_lower": email})
+        user = await users.find_one({"email_lower": email_clean})
         if not user:
-            self.render("templates/verify.html", error="User not found.", success=None, email=email, code=code)
-            return
+            return "User not found.", None
+
+        if user.get("email_verified_at"):
+            return None, "Email already verified. You can now log in."
 
         stored_code = user.get("email_verification_code")
         expires_at = user.get("email_verification_expires_at")
-        if not stored_code or stored_code != code:
-            self.render("templates/verify.html", error="Invalid code.", success=None, email=email, code=code)
+        attempts = int(user.get("email_verification_attempts") or 0)
+
+        if not stored_code:
+            return "No verification code found. Request a new one.", None
+
+        if attempts >= VERIFICATION_ATTEMPT_LIMIT:
+            return "Too many attempts. Request a new code.", None
+
+        now = utcnow()
+
+        def _expires_before_now(val: Any) -> bool:
+            if not isinstance(val, dt.datetime):
+                return False
+            if val.tzinfo is None:
+                val = val.replace(tzinfo=dt.timezone.utc)
+            return val < now
+
+        if expires_at and _expires_before_now(expires_at):
+            attempts += 1
+            await users.update_one(
+                {"email_lower": email_clean},
+                {
+                    "$inc": {"email_verification_attempts": 1},
+                    "$set": {"updated_at": now},
+                },
+            )
+            if attempts >= VERIFICATION_ATTEMPT_LIMIT:
+                return "Too many attempts. Request a new code.", None
+            return "Code expired. Request a new code.", None
+
+        if stored_code != code_clean:
+            attempts += 1
+            await users.update_one(
+                {"email_lower": email_clean},
+                {
+                    "$inc": {"email_verification_attempts": 1},
+                    "$set": {"updated_at": now},
+                },
+            )
+            if attempts >= VERIFICATION_ATTEMPT_LIMIT:
+                return "Too many attempts. Request a new code.", None
+            return "Invalid code.", None
+
+        await users.update_one(
+            {"email_lower": email_clean},
+            {
+                "$set": {
+                    "email_verified_at": now,
+                    "email_verification_code": None,
+                    "email_verification_expires_at": None,
+                    "email_verification_attempts": 0,
+                    "updated_at": now,
+                }
+            },
+        )
+
+        return None, "Email verified. You can now log in."
+
+    async def get(self) -> None:
+        email_arg = self.get_argument("email", "").strip()
+        code_arg = self.get_argument("code", "").strip()
+        if email_arg and code_arg:
+            error, success = await self._process_verification(email_arg, code_arg)
+            self.render(
+                "templates/verify.html",
+                error=error,
+                success=success,
+                email=email_arg,
+                code="" if success else code_arg,
+                resend_cooldown_seconds=0,
+            )
             return
-        if expires_at and isinstance(expires_at, dt.datetime):
-            if expires_at.tzinfo is None:
-                expires_at = expires_at.replace(tzinfo=dt.timezone.utc)
-            if expires_at < utcnow():
-                self.render("templates/verify.html", error="Code expired. Request a new invite.", success=None, email=email, code=code)
+
+        self.render("templates/verify.html", error=None, success=None, email=email_arg, code=code_arg, resend_cooldown_seconds=0)
+
+    async def post(self) -> None:
+        email = self.get_body_argument("email", "")
+        code = self.get_body_argument("code", "")
+        error, success = await self._process_verification(email, code)
+        self.render(
+            "templates/verify.html",
+            error=error,
+            success=success,
+            email=email.strip().lower(),
+            code="" if success else code.strip().upper(),
+            resend_cooldown_seconds=0,
+        )
+
+
+class ResendVerificationHandler(BaseHandler):
+    async def post(self) -> None:
+        email = self.get_body_argument("email", "").strip().lower()
+        now = utcnow()
+        users: Collection = self.db[self.cfg.users_collection]
+
+        if not email:
+            self.render(
+                "templates/verify.html",
+                error="Email is required to resend the verification code.",
+                success=None,
+                email="",
+                code="",
+                resend_cooldown_seconds=0,
+            )
+            return
+
+        user = await users.find_one({"email_lower": email})
+        if not user:
+            self.render(
+                "templates/verify.html",
+                error="User not found.",
+                success=None,
+                email=email,
+                code="",
+                resend_cooldown_seconds=0,
+            )
+            return
+
+        if user.get("email_verified_at"):
+            self.render(
+                "templates/verify.html",
+                error=None,
+                success="Email already verified. You can now log in.",
+                email=email,
+                code="",
+                resend_cooldown_seconds=0,
+            )
+            return
+
+        last_sent: Optional[dt.datetime] = user.get("email_verification_last_sent_at") or user.get("email_proof_sent_at")
+        remaining_seconds = 0
+        if isinstance(last_sent, dt.datetime):
+            if last_sent.tzinfo is None:
+                last_sent = last_sent.replace(tzinfo=dt.timezone.utc)
+            cooldown_end = last_sent + VERIFICATION_RESEND_COOLDOWN
+            remaining_seconds = int((cooldown_end - now).total_seconds())
+            if remaining_seconds > 0:
+                self.render(
+                    "templates/verify.html",
+                    error="Please wait before requesting another code.",
+                    success=None,
+                    email=email,
+                    code="",
+                    resend_cooldown_seconds=remaining_seconds,
+                )
                 return
+
+        new_code = generate_verification_code()
+        verification_link = f"{self.cfg.app_base_url.rstrip('/')}/verify?code={new_code}&email={email}"
 
         await users.update_one(
             {"email_lower": email},
             {
                 "$set": {
-                    "email_verified_at": utcnow(),
-                    "email_verification_code": None,
-                    "email_verification_expires_at": None,
+                    "email_verification_code": new_code,
+                    "email_verification_expires_at": now + EMAIL_VERIFICATION_EXPIRY,
+                    "email_verification_attempts": 0,
+                    "email_verification_last_sent_at": now,
+                    "email_proof_sent_at": now,
+                    "updated_at": now,
                 }
             },
         )
 
-        self.render("templates/verify.html", error=None, success="Email verified. You can now log in.", email=email, code="")
+        try:
+            send_email(
+                self.cfg,
+                to_email=email,
+                subject="Verify your email for UNSEEN",
+                body=(
+                    "Hi,\n\n"
+                    "Please verify your email to complete your registration for UNSEEN.\n\n"
+                    f"Verification code: {new_code}\n"
+                    f"Or click: {verification_link}\n\n"
+                    "This code expires in 6 hours.\n\n"
+                    "If you did not register, you can ignore this email."
+                ),
+            )
+        except Exception:
+            pass
+
+        self.render(
+            "templates/verify.html",
+            error=None,
+            success="A new verification code was sent to your email.",
+            email=email,
+            code="",
+            resend_cooldown_seconds=int(VERIFICATION_RESEND_COOLDOWN.total_seconds()),
+        )
 
 
 async def create_indexes(db: Database, cfg: Settings) -> None:
@@ -1151,6 +1329,7 @@ def make_app(settings: Settings) -> tornado.web.Application:
         (r"/admin/approve/([A-Za-z0-9]+)", ApprovePaymentHandler, None),
         (r"/admin/registrations/([A-Za-z0-9]+)/meta", RegistrationMetaHandler, None),
         (r"/admin/suggestions/([A-Za-z0-9]+)", SuggestionStatusHandler, None),
+        (r"/verify/resend", ResendVerificationHandler, None),
         (r"/verify", VerifyHandler, None),
     )
 

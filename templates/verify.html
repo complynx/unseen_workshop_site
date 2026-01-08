@@ -40,6 +40,7 @@
           </div>
           {% end %}
 
+          {% if not success %}
           <form method="post" action="{{ base_path }}/verify">
             <div>
               <label for="email">Email</label>
@@ -49,14 +50,53 @@
               <label for="code">Verification code</label>
               <input type="text" id="code" name="code" required placeholder="8-character code" value="{{ code or '' }}">
             </div>
-            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px; flex-wrap:wrap;">
               <a class="btn" href="{{ base_path }}/login">Back to login</a>
+              <button class="btn" type="submit" formaction="{{ base_path }}/verify/resend" formmethod="post" formnovalidate {% if resend_cooldown_seconds %}disabled data-cooldown="{{ resend_cooldown_seconds }}"{% end %}>Resend code</button>
               <button class="btn primary" type="submit">Verify</button>
             </div>
+            <div class="fineprint" data-cooldown-timer style="text-align:right; min-height:18px;"></div>
           </form>
+          {% else %}
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+            <a class="btn primary" href="{{ base_path }}/login">Continue to login</a>
+          </div>
+          {% end %}
         </div>
       </div>
     </section>
   </main>
+  <script>
+    (function() {
+      const btn = document.querySelector('[data-cooldown]');
+      if (!btn) return;
+      const timer = document.querySelector('[data-cooldown-timer]');
+      const start = parseInt(btn.dataset.cooldown || '0', 10);
+      if (!start || Number.isNaN(start) || start <= 0) return;
+      let remaining = start;
+      const label = btn.textContent;
+      const format = (s) => {
+        const mins = Math.floor(s / 60);
+        const secs = Math.max(0, Math.floor(s % 60));
+        return mins ? `${mins}m ${secs.toString().padStart(2, '0')}s` : `${secs}s`;
+      };
+      const update = () => {
+        if (remaining <= 0) {
+          btn.disabled = false;
+          btn.textContent = label;
+          btn.removeAttribute('data-cooldown');
+          if (timer) timer.textContent = '';
+          clearInterval(interval);
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = `${label} (${format(remaining)})`;
+        if (timer) timer.textContent = `You can request a new code in ${format(remaining)}.`;
+        remaining -= 1;
+      };
+      update();
+      const interval = setInterval(update, 1000);
+    })();
+  </script>
 </body>
 </html>
