@@ -111,6 +111,7 @@ class Invite(BaseModel):
     created_by: str
     created_at: dt.datetime = Field(default_factory=utcnow)
     updated_at: dt.datetime = Field(default_factory=utcnow)
+    hidden: bool = False
     status: str = "active"
     used_at: Optional[dt.datetime] = None
     used_by: Optional[str] = None
@@ -289,6 +290,8 @@ class RegistrationRecord(BaseModel):
     admin_comment: Optional[str] = None
     assigned_price: Optional[str] = None
     post_approval: PostApprovalForm = Field(default_factory=PostApprovalForm)
+    cancelled_at: Optional[dt.datetime] = None
+    cancelled_by: Optional[str] = None
     created_at: dt.datetime = Field(default_factory=utcnow)
     updated_at: dt.datetime = Field(default_factory=utcnow)
 
@@ -805,7 +808,8 @@ class AdminHandler(BaseHandler):
             role = str(doc_typed.get("role") or "").lower()
             verified = bool(doc_typed.get("email_verified_at"))
             paid = bool(doc_typed.get("payment_approved"))
-            if role in reg_stats["pending_email"]:
+            is_cancelled = bool(doc_typed.get("cancelled_at"))
+            if role in reg_stats["pending_email"] and not is_cancelled:
                 if not verified:
                     reg_stats["pending_email"][role] += 1
                 elif paid:
@@ -818,6 +822,7 @@ class AdminHandler(BaseHandler):
                 "_id": str(doc_typed["_id"]),
                 "post_meta": post_meta,
                 "order": len(registrations),
+                "cancelled": is_cancelled,
             }
             registrations.append(reg_dict)
 
@@ -904,19 +909,92 @@ class InviteStatusHandler(BaseHandler):
             raise tornado.web.HTTPError(403)
 
         code_lower = code.lower()
+        action = self.get_body_argument("action", "delete").strip().lower()
         invites_coll: Collection = self.db[self.cfg.invites_collection]
         now = utcnow()
-        await invites_coll.update_one(
-            {"code": code_lower, "status": {"$ne": "used"}},
-            {
-                "$set": {
-                    "status": "deleted",
-                    "deleted_at": now,
-                    "deleted_by": self.current_user.get("email"),
-                    "updated_at": now,
-                }
-            },
-        )
+        if action == "hide":
+            await invites_coll.update_one(
+                {"code": code_lower},
+                {
+                    "$set": {
+                        "hidden": True,
+                        "updated_at": now,
+                    }
+                },
+            )
+        elif action == "unhide":
+            await invites_coll.update_one(
+                {"code": code_lower},
+                {
+                    "$set": {
+                        "hidden": False,
+                        "updated_at": now,
+                    }
+                },
+            )
+        elif action == "delete":
+            await invites_coll.update_one(
+                {"code": code_lower, "status": {"$ne": "used"}},
+                {
+                    "$set": {
+                        "status": "deleted",
+                        "deleted_at": now,
+                        "deleted_by": self.current_user.get("email"),
+                        "updated_at": now,
+                    }
+                },
+            )
+        else:
+            raise tornado.web.HTTPError(400)
+        self.redirect("/admin")
+
+
+class CancelRegistrationHandler(BaseHandler):
+    @tornado.web.authenticated
+    async def post(self, user_id: str) -> None:
+        if not self.current_user or self.current_user.get("role") != "admin":
+            raise tornado.web.HTTPError(403)
+
+        action = self.get_body_argument("action", "cancel").strip().lower()
+        try:
+            user_oid = ObjectId(user_id)
+        except Exception:
+            raise tornado.web.HTTPError(404)
+
+        users_coll: Collection = self.db[self.cfg.users_collection]
+        user_doc = await users_coll.find_one({"_id": user_oid})
+        if not user_doc:
+            raise tornado.web.HTTPError(404)
+
+        now = utcnow()
+        if action == "cancel":
+            if user_doc.get("payment_approved"):
+                raise tornado.web.HTTPError(400)
+            await users_coll.update_one(
+                {"_id": user_oid},
+                {
+                    "$set": {
+                        "cancelled_at": now,
+                        "cancelled_by": self.current_user.get("email"),
+                        "payment_approved": False,
+                        "updated_at": now,
+                    }
+                },
+            )
+        elif action == "restore":
+            await users_coll.update_one(
+                {"_id": user_oid},
+                {
+                    "$set": {
+                        "cancelled_at": None,
+                        "cancelled_by": None,
+                        "updated_at": now,
+                    }
+                },
+            )
+        else:
+            raise tornado.web.HTTPError(400)
+
         self.redirect("/admin")
 
 
@@ -1327,6 +1405,7 @@ def make_app(settings: Settings) -> tornado.web.Application:
         (r"/admin/invites", CreateInviteHandler, None),
         (r"/admin/invites/([A-Za-z0-9\\-_]+)/delete", InviteStatusHandler, None),
         (r"/admin/approve/([A-Za-z0-9]+)", ApprovePaymentHandler, None),
+        (r"/admin/registrations/([A-Za-z0-9]+)/cancel", CancelRegistrationHandler, None),
         (r"/admin/registrations/([A-Za-z0-9]+)/meta", RegistrationMetaHandler, None),
         (r"/admin/suggestions/([A-Za-z0-9]+)", SuggestionStatusHandler, None),
         (r"/verify/resend", ResendVerificationHandler, None),

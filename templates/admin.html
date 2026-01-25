@@ -78,7 +78,7 @@
         <div class="card">
           <h3>Invitations</h3>
           <div class="tableToolbar">
-            <button class="btn ghost" type="button" id="toggle-archived-invites" aria-pressed="false">Show used / deleted</button>
+            <button class="btn ghost" type="button" id="toggle-archived-invites" aria-pressed="false">Show used / deleted / hidden</button>
           </div>
           <div class="tableSimple invitesTable">
             <div class="tableHead">
@@ -86,11 +86,13 @@
             </div>
             {% for inv in invites %}
             {% set invite_status = (inv.get("status") or "active").lower() %}
-            {% set invite_archived = invite_status in ["used", "deleted"] %}
+            {% set invite_hidden = inv.get("hidden") %}
+            {% set invite_archived = invite_status in ["used", "deleted"] or invite_hidden %}
             <div
               class="tableRow"
               data-invite-row="true"
               data-invite-status="{{ invite_status }}"
+              data-hidden="{{ 'true' if invite_hidden else 'false' }}"
               data-archived="{{ 'true' if invite_archived else 'false' }}"
             >
               <div class="inviteSummary">
@@ -110,12 +112,21 @@
                 {% else %}
                   <span class="statusBadge">Active</span>
                 {% end %}
+                {% if invite_hidden %}
+                  <div class="fineprint">Hidden</div>
+                {% endif %}
               </div>
               <div class="fineprint inviteCreated">{{ fmt_ts(inv.get("created_at")) }}</div>
-              <div>
+              <div class="inviteActions" style="display:flex; gap:8px; flex-wrap:wrap;">
                 {% if invite_status == "active" %}
                 <form method="post" action="{{ base_path }}/admin/invites/{{ inv.get('code') }}/delete">
                   <button class="btn" type="submit">Delete</button>
+                </form>
+                {% endif %}
+                {% if invite_status != "deleted" %}
+                <form method="post" action="{{ base_path }}/admin/invites/{{ inv.get('code') }}/delete">
+                  <input type="hidden" name="action" value="{{ 'unhide' if invite_hidden else 'hide' }}">
+                  <button class="btn ghost" type="submit">{{ 'Unhide' if invite_hidden else 'Hide' }}</button>
                 </form>
                 {% else %}
                   <span class="fineprint">-</span>
@@ -142,6 +153,9 @@
 
         <div class="card" style="grid-column: 1 / -1;">
           <h3>Registrations</h3>
+          <div class="tableToolbar">
+            <button class="btn ghost" type="button" id="toggle-cancelled-registrations" aria-pressed="false">Show cancelled</button>
+          </div>
             <div class="tableSimple registrationsTable">
             <div class="tableHead">
               <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="name">Name</div>
@@ -157,6 +171,8 @@
             {% set verified = reg.get("email_verified_at") %}
             {% set paid = reg.get("payment_approved") %}
             {% set full_name = ((reg.get("first_name","") + " " + reg.get("last_name","")).strip()) %}
+            {% set reg_cancelled = reg.get("cancelled") or reg.get("cancelled_at") %}
+            {% set status_rank = 99 if reg_cancelled else 2 if paid else 1 if verified else 0 %}
             <div
               class="tableRow regRow"
               data-name="{{ full_name.lower() }}"
@@ -165,9 +181,10 @@
               data-level="{{ reg.get('level','').lower() }}"
               data-phone="{{ reg.get('phone','') }}"
               data-group="{{ '1' if post_meta.get('whatsapp_opt_in') else '0' }}"
-              data-status-rank="{{ 2 if paid else 1 if verified else 0 }}"
+              data-status-rank="{{ status_rank }}"
               data-index="{{ reg.get('order', 0) }}"
               data-details-id="{{ reg.get('_id') }}"
+              data-cancelled="{{ 'true' if reg_cancelled else 'false' }}"
             >
               <div>{{ reg.get("first_name") }} {{ reg.get("last_name") }}</div>
               <div class="fineprint">{{ reg.get("email") }}</div>
@@ -181,7 +198,10 @@
                 {% end %}
               </div>
               <div>
-                {% if not verified %}
+                {% if reg_cancelled %}
+                  <span class="statusBadge muted">Cancelled</span>
+                  <div class="fineprint">{{ fmt_ts(reg.get("cancelled_at")) }}</div>
+                {% elif not verified %}
                   <span class="statusBadge muted">Email pending</span>
                 {% elif not paid %}
                   <span class="statusBadge warn">Awaiting payment</span>
@@ -189,7 +209,13 @@
                   <span class="statusBadge success">Paid</span>
                 {% end %}
               </div>
-              <div class="rowActions">
+              <div class="rowActions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                {% if reg_cancelled %}
+                <form method="post" action="{{ base_path }}/admin/registrations/{{ reg.get('_id') }}/cancel">
+                  <input type="hidden" name="action" value="restore">
+                  <button class="btn" type="submit">Restore</button>
+                </form>
+                {% else %}
                 <form method="post" action="{{ base_path }}/admin/approve/{{ reg.get('_id') }}" style="display:flex; gap:8px;">
                   {% if reg.get("payment_approved") %}
                   <button class="btn" name="action" value="revoke" type="submit">Revoke</button>
@@ -197,6 +223,13 @@
                   <button class="btn primary" name="action" value="approve" type="submit">Approve</button>
                   {% end %}
                 </form>
+                {% if not paid %}
+                <form method="post" action="{{ base_path }}/admin/registrations/{{ reg.get('_id') }}/cancel">
+                  <input type="hidden" name="action" value="cancel">
+                  <button class="btn ghost" type="submit">Cancel</button>
+                </form>
+                {% endif %}
+                {% end %}
                 <button class="btn ghost detailsToggle" type="button" aria-expanded="false" data-details-target="{{ reg.get('_id') }}">
                   <span class="chevron"></span>
                 </button>
@@ -212,6 +245,15 @@
                   <div class="fineprint">Registered</div>
                   <div>{{ fmt_ts(reg.get("created_at")) }}</div>
                 </div>
+                {% if reg_cancelled %}
+                <div>
+                  <div class="fineprint">Cancelled</div>
+                  <div>{{ fmt_ts(reg.get("cancelled_at")) }}</div>
+                  {% if reg.get("cancelled_by") %}
+                    <div class="fineprint">By {{ reg.get("cancelled_by") }}</div>
+                  {% end %}
+                </div>
+                {% endif %}
                 <div>
                   <div class="fineprint">Partner</div>
                   <div>
@@ -414,7 +456,7 @@
 
       const updateInviteToggleLabel = () => {
         if (!inviteToggle) return;
-        inviteToggle.textContent = showArchivedInvites ? 'Hide used / deleted' : 'Show used / deleted';
+        inviteToggle.textContent = showArchivedInvites ? 'Hide used / deleted / hidden' : 'Show used / deleted / hidden';
         inviteToggle.setAttribute('aria-pressed', showArchivedInvites ? 'true' : 'false');
       };
 
@@ -442,6 +484,38 @@
       const suggestionsTable = document.querySelector('.suggestionsTable');
       const registrationsTable = document.querySelector('.registrationsTable');
       const emptyState = document.getElementById('suggestions-empty');
+      const cancelledToggle = document.getElementById('toggle-cancelled-registrations');
+      let showCancelledRegs = false;
+
+      const updateCancelledToggleLabel = () => {
+        if (!cancelledToggle) return;
+        cancelledToggle.textContent = showCancelledRegs ? 'Hide cancelled' : 'Show cancelled';
+        cancelledToggle.setAttribute('aria-pressed', showCancelledRegs ? 'true' : 'false');
+      };
+
+      const applyCancelledFilter = () => {
+        const regRows = Array.from(document.querySelectorAll('.regRow'));
+        regRows.forEach((row) => {
+          const isCancelled = row.dataset.cancelled === 'true';
+          const detailId = row.dataset.detailsId;
+          const detailsRow = detailId ? document.querySelector(`[data-details="${detailId}"]`) : null;
+          const hide = isCancelled && !showCancelledRegs;
+          row.classList.toggle('is-hidden', hide);
+          if (detailsRow) detailsRow.classList.toggle('is-hidden', hide);
+        });
+      };
+
+      if (cancelledToggle) {
+        updateCancelledToggleLabel();
+        applyCancelledFilter();
+        cancelledToggle.addEventListener('click', () => {
+          showCancelledRegs = !showCancelledRegs;
+          updateCancelledToggleLabel();
+          applyCancelledFilter();
+        });
+      } else {
+        applyCancelledFilter();
+      }
 
       const sortState = {
         registrations: { key: null, dir: null, mode: null },
@@ -556,6 +630,7 @@
         });
         registrationsTable.innerHTML = '';
         registrationsTable.appendChild(fragment);
+        applyCancelledFilter();
       };
 
       const applySuggestions = () => {
