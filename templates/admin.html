@@ -114,7 +114,7 @@
                 {% end %}
                 {% if invite_hidden %}
                   <div class="fineprint">Hidden</div>
-                {% endif %}
+                {% end %}
               </div>
               <div class="fineprint inviteCreated">{{ fmt_ts(inv.get("created_at")) }}</div>
               <div class="inviteActions" style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -122,7 +122,7 @@
                 <form method="post" action="{{ base_path }}/admin/invites/{{ inv.get('code') }}/delete">
                   <button class="btn" type="submit">Delete</button>
                 </form>
-                {% endif %}
+                {% end %}
                 {% if invite_status != "deleted" %}
                 <form method="post" action="{{ base_path }}/admin/invites/{{ inv.get('code') }}/delete">
                   <input type="hidden" name="action" value="{{ 'unhide' if invite_hidden else 'hide' }}">
@@ -228,7 +228,7 @@
                   <input type="hidden" name="action" value="cancel">
                   <button class="btn ghost" type="submit">Cancel</button>
                 </form>
-                {% endif %}
+                {% end %}
                 {% end %}
                 <button class="btn ghost detailsToggle" type="button" aria-expanded="false" data-details-target="{{ reg.get('_id') }}">
                   <span class="chevron"></span>
@@ -253,7 +253,7 @@
                     <div class="fineprint">By {{ reg.get("cancelled_by") }}</div>
                   {% end %}
                 </div>
-                {% endif %}
+                {% end %}
                 <div>
                   <div class="fineprint">Partner</div>
                   <div>
