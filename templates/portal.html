@@ -145,6 +145,7 @@
           {% end %}
         </div>
 
+        {% if user.get("is_admin") %}
         <div class="card">
           <h3>Confirmed participants</h3>
           <span class="fineprint">(names only)</span>
@@ -157,6 +158,7 @@
             {% end %}
           </ul>
         </div>
+        {% end %}
       </div>
     </section>
   </main>
