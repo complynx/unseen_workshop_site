@@ -424,6 +424,11 @@ class LandingHandler(BaseHandler):
         )
 
 
+class HowToGetThereHandler(BaseHandler):
+    async def get(self) -> None:
+        self.render("templates/how_to_get_there.html")
+
+
 class LoginHandler(BaseHandler):
     def get(self) -> None:
         self.render("templates/login.html", error=None)
@@ -1397,6 +1402,7 @@ def make_app(settings: Settings) -> tornado.web.Application:
 
     route_specs: Sequence[tuple[str, type[BaseHandler], Optional[str]]] = (
         (r"/", LandingHandler, "home"),
+        (r"/how-to-get-there", HowToGetThereHandler, "how_to_get_there"),
         (r"/login", LoginHandler, "login"),
         (r"/logout", LogoutHandler, None),
         (r"/register/([A-Za-z0-9\\-_]+)", RegisterHandler, None),
