@@ -29,34 +29,48 @@
         <h1 class="howToTitle">How to get there</h1>
         <div class="card howToCard">
           <p><b>Studio Zena</b><br>Borneokade 68, 1019 AW Amsterdam</p>
-          <p><a href="https://maps.app.goo.gl/hr7wbRZNuzdYVMhw7" target="_blank" rel="noopener noreferrer">https://maps.app.goo.gl/hr7wbRZNuzdYVMhw7</a></p>
-          <p>Bus 43 from Amsterdam Centraal to R.J.H. Fortuynplein every 20 minutes</p>
+          <p><a href="https://maps.app.goo.gl/hr7wbRZNuzdYVMhw7" target="_blank" rel="noopener noreferrer">Open in Google Maps</a></p>
+          <p><b>By bus from Amsterdam Centraal:</b> take bus 43 and get off at <b>R.J.H. Fortuynplein</b> (buses run about every 20 minutes). After getting off, face the same direction the bus was driving, then turn right onto R.J.H. Fortuynplein and continue through. The mermaid statue should be in front of you.</p>
         </div>
 
         <div class="howToGallery">
-          <p class="howToCaption">Before: you will see a boat with a mermaid statue in front.</p>
-          <div class="howToPair">
-            <img src="{{ static_url('zena/1.jpg') }}" alt="Route image 1 to Studio Zena">
-            <img src="{{ static_url('zena/2.jpg') }}" alt="Route image 2 to Studio Zena">
-          </div>
-          <figure class="howToFigure">
-            <img src="{{ static_url('zena/3.jpg') }}" alt="Route image 3 to Studio Zena">
-            <figcaption>Enter to the left of the pillar into the passage on the pier.</figcaption>
-          </figure>
-          <p class="howToCaption">Take steps up and right onto the boat, take right (towards the street) after boarding.</p>
-          <div class="howToPair">
-            <img src="{{ static_url('zena/4.jpg') }}" alt="Route image 4 to Studio Zena">
-            <img src="{{ static_url('zena/5.jpg') }}" alt="Route image 5 to Studio Zena">
-          </div>
-          <p class="howToCaption">Take first turn to the left, and you will see a hatch to your right.</p>
-          <div class="howToPair">
-            <img src="{{ static_url('zena/6.jpg') }}" alt="Route image 6 to Studio Zena">
-            <img src="{{ static_url('zena/7.jpg') }}" alt="Route image 7 to Studio Zena">
-          </div>
-          <figure class="howToFigure">
-            <img src="{{ static_url('zena/8.jpg') }}" alt="Route image 8 to Studio Zena">
-            <figcaption>Step down the hatch into the boat.</figcaption>
-          </figure>
+          <section class="howToGroup">
+            <h2 class="howToGroupTitle">You will see a boat with a mermaid statue in front.</h2>
+            <div class="howToGroupImages">
+              <img src="{{ static_url('zena/1.jpg') }}" alt="Route image 1 to Studio Zena">
+              <img src="{{ static_url('zena/2.jpg') }}" alt="Route image 2 to Studio Zena">
+            </div>
+          </section>
+
+          <section class="howToGroup">
+            <h2 class="howToGroupTitle">Enter the passage on the pier to the left of the pillar.</h2>
+            <div class="howToGroupImages howToGroupImagesSingle">
+              <img src="{{ static_url('zena/3.jpg') }}" alt="Route image 3 to Studio Zena">
+            </div>
+          </section>
+
+          <section class="howToGroup">
+            <h2 class="howToGroupTitle">Walk up the steps and board the boat. After boarding, turn right (towards the street).</h2>
+            <div class="howToGroupImages">
+              <img src="{{ static_url('zena/4.jpg') }}" alt="Route image 4 to Studio Zena">
+              <img src="{{ static_url('zena/5.jpg') }}" alt="Route image 5 to Studio Zena">
+            </div>
+          </section>
+
+          <section class="howToGroup">
+            <h2 class="howToGroupTitle">Take the first left turn. You will see a hatch on your right.</h2>
+            <div class="howToGroupImages">
+              <img src="{{ static_url('zena/6.jpg') }}" alt="Route image 6 to Studio Zena">
+              <img src="{{ static_url('zena/7.jpg') }}" alt="Route image 7 to Studio Zena">
+            </div>
+          </section>
+
+          <section class="howToGroup">
+            <h2 class="howToGroupTitle">Step down through the hatch into the boat.</h2>
+            <div class="howToGroupImages howToGroupImagesSingle">
+              <img src="{{ static_url('zena/8.jpg') }}" alt="Route image 8 to Studio Zena">
+            </div>
+          </section>
         </div>
       </div>
     </section>
