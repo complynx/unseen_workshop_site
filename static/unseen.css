@@ -882,6 +882,48 @@ input:disabled{
   border: 1px solid rgba(248,117,26,.2);
   box-shadow: var(--shadow);
 }
+.howToExpandable{
+  cursor: zoom-in;
+}
+.howToLightbox{
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 26px;
+  background: rgba(2,0,1,.9);
+}
+.howToLightbox[hidden]{
+  display: none;
+}
+.howToLightbox img{
+  max-width: min(1200px, 95vw);
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 14px;
+  border: 1px solid rgba(248,117,26,.32);
+  box-shadow: var(--shadow);
+  cursor: zoom-out;
+  background: rgba(7,4,6,.35);
+}
+.howToLightboxClose{
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: 1px solid rgba(248,117,26,.45);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(7,4,6,.65);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+body.noScroll{
+  overflow: hidden;
+}
 
 /* Responsive */
 @media (max-width: 980px){

@@ -75,5 +75,78 @@
       </div>
     </section>
   </main>
+
+  <div class="howToLightbox" id="howToLightbox" hidden aria-hidden="true">
+    <button class="howToLightboxClose" id="howToLightboxClose" type="button" aria-label="Close expanded image">Close</button>
+    <img id="howToLightboxImage" src="" alt="">
+  </div>
+
+  <script>
+    (() => {
+      const lightbox = document.getElementById("howToLightbox");
+      const lightboxImage = document.getElementById("howToLightboxImage");
+      const closeButton = document.getElementById("howToLightboxClose");
+      const images = document.querySelectorAll(".howToGroupImages img");
+
+      if (!lightbox || !lightboxImage || !closeButton || images.length === 0) {
+        return;
+      }
+
+      let open = false;
+
+      const closeLightbox = () => {
+        if (!open) {
+          return;
+        }
+        lightbox.hidden = true;
+        lightbox.setAttribute("aria-hidden", "true");
+        lightboxImage.setAttribute("src", "");
+        lightboxImage.setAttribute("alt", "");
+        document.body.classList.remove("noScroll");
+        open = false;
+      };
+
+      const openLightbox = (image) => {
+        lightboxImage.setAttribute("src", image.getAttribute("src") || "");
+        lightboxImage.setAttribute("alt", image.getAttribute("alt") || "Expanded route photo");
+        lightbox.hidden = false;
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.classList.add("noScroll");
+        open = true;
+      };
+
+      images.forEach((image) => {
+        image.classList.add("howToExpandable");
+        image.setAttribute("tabindex", "0");
+        image.setAttribute("role", "button");
+        image.setAttribute("aria-label", `${image.getAttribute("alt") || "Route photo"}. Click to expand.`);
+
+        image.addEventListener("click", () => {
+          openLightbox(image);
+        });
+
+        image.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openLightbox(image);
+          }
+        });
+      });
+
+      closeButton.addEventListener("click", closeLightbox);
+
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox || event.target === lightboxImage) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeLightbox();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
