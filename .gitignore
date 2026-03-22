@@ -5,5 +5,6 @@ __pycache__
 .venv-linux
 .vscode
 *.egg-info
+config.yaml
 
 local/

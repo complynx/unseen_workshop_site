@@ -30,7 +30,7 @@
       <div class="wrap dashGrid adminGrid">
         <div class="card balanceCard" style="grid-column: 1 / -1;">
           <h3>Balance</h3>
-          <p class="fineprint">Leaders / Followers by stage</p>
+          <p class="fineprint">Leaders / Followers by application stage</p>
           <div class="balanceGrid">
             <div class="balanceItem">
               <div class="fineprint">Pending email verification</div>
@@ -40,149 +40,50 @@
               </div>
             </div>
             <div class="balanceItem">
-              <div class="fineprint">Registered</div>
+              <div class="fineprint">Pending review</div>
               <div class="balanceCounts">
-                <span class="countBadge">L <b>{{ reg_stats.get("registered", {}).get("leader", 0) }}</b></span>
-                <span class="countBadge">F <b>{{ reg_stats.get("registered", {}).get("follower", 0) }}</b></span>
+                <span class="countBadge">L <b>{{ reg_stats.get("pending_review", {}).get("leader", 0) }}</b></span>
+                <span class="countBadge">F <b>{{ reg_stats.get("pending_review", {}).get("follower", 0) }}</b></span>
               </div>
             </div>
             <div class="balanceItem">
-              <div class="fineprint">Paid</div>
+              <div class="fineprint">Awaiting payment</div>
               <div class="balanceCounts">
-                <span class="countBadge">L <b>{{ reg_stats.get("paid", {}).get("leader", 0) }}</b></span>
-                <span class="countBadge">F <b>{{ reg_stats.get("paid", {}).get("follower", 0) }}</b></span>
+                <span class="countBadge">L <b>{{ reg_stats.get("awaiting_payment", {}).get("leader", 0) }}</b></span>
+                <span class="countBadge">F <b>{{ reg_stats.get("awaiting_payment", {}).get("follower", 0) }}</b></span>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Create invitation</h3>
-          <form method="post" action="{{ base_path }}/admin/invites">
-            <div class="formRow">
-              <div>
-                <label for="label">Name</label>
-                <input type="text" id="label" name="label" placeholder="Ivan Ivanov">
-              </div>
-              <div>
-                <label for="code">Invitation code</label>
-                <input type="text" id="code" name="code" placeholder="generate if blank">
+            <div class="balanceItem">
+              <div class="fineprint">Confirmed</div>
+              <div class="balanceCounts">
+                <span class="countBadge">L <b>{{ reg_stats.get("confirmed", {}).get("leader", 0) }}</b></span>
+                <span class="countBadge">F <b>{{ reg_stats.get("confirmed", {}).get("follower", 0) }}</b></span>
               </div>
             </div>
-            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:6px;">
-              <button class="btn primary" type="submit">Create invite</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="card">
-          <h3>Invitations</h3>
-          <div class="tableToolbar">
-            <button class="btn ghost" type="button" id="toggle-archived-invites" aria-pressed="false">Show used / deleted / hidden</button>
-          </div>
-          <div class="tableSimple invitesTable">
-            <div class="tableHead">
-              <div>Label / Code</div><div>Status</div><div>Created</div><div>Actions</div>
-            </div>
-            {% for inv in invites %}
-            {% set invite_status = (inv.get("status") or "active").lower() %}
-            {% set invite_hidden = inv.get("hidden") %}
-            {% set invite_archived = invite_status in ["used", "deleted"] or invite_hidden %}
-            <div
-              class="tableRow"
-              data-invite-row="true"
-              data-invite-status="{{ invite_status }}"
-              data-hidden="{{ 'true' if invite_hidden else 'false' }}"
-              data-archived="{{ 'true' if invite_archived else 'false' }}"
-            >
-              <div class="inviteSummary">
-                <div class="inviteLabel">{{ inv.get("label") }}</div>
-                <div class="inviteCode"><code>{{ inv.get("code") }}</code></div>
-              </div>
-              <div>
-                {% if invite_status == "used" %}
-                  <span class="statusBadge success">Used</span>
-                  <div class="fineprint">{{ fmt_ts(inv.get("used_at")) }}</div>
-                  {% if inv.get("used_by") %}
-                    <div class="fineprint">By {{ inv.get("used_by") }}</div>
-                  {% end %}
-                {% elif invite_status == "deleted" %}
-                  <span class="statusBadge muted">Deleted</span>
-                  <div class="fineprint">{{ fmt_ts(inv.get("deleted_at")) }}</div>
-                {% else %}
-                  <span class="statusBadge">Active</span>
-                {% end %}
-                {% if invite_hidden %}
-                  <div class="fineprint">Hidden</div>
-                {% end %}
-              </div>
-              <div class="fineprint inviteCreated">{{ fmt_ts(inv.get("created_at")) }}</div>
-              <div class="inviteActions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                {% if invite_status == "active" %}
-                <form method="post" action="{{ base_path }}/admin/invites/{{ inv.get('code') }}/delete">
-                  <button class="btn" type="submit">Delete</button>
-                </form>
-                {% end %}
-                {% if invite_status != "deleted" %}
-                <form method="post" action="{{ base_path }}/admin/invites/{{ inv.get('code') }}/delete">
-                  <input type="hidden" name="action" value="{{ 'unhide' if invite_hidden else 'hide' }}">
-                  <button class="btn ghost" type="submit">{{ 'Unhide' if invite_hidden else 'Hide' }}</button>
-                </form>
-                {% else %}
-                  <span class="fineprint">-</span>
-                {% end %}
-              </div>
-              <div class="inviteLinkRow">
-                <span class="fineprint">Link</span>
-                <a
-                  class="fineprint inviteLink"
-                  href="{{ base_url }}/register/{{ inv.get('code') }}"
-                  data-copy-link="{{ base_url }}/register/{{ inv.get('code') }}"
-                  title="Click to copy invite link"
-                >
-                  {{ base_url }}/register/{{ inv.get("code") }}
-                </a>
-              </div>
-            </div>
-            {% end %}
-            {% if not invites %}
-            <div class="fineprint">No invites yet.</div>
-            {% end %}
           </div>
         </div>
 
         <div class="card" style="grid-column: 1 / -1;">
-          <h3>Registrations</h3>
+          <h3>Applications</h3>
           <div class="tableToolbar">
-            <button class="btn ghost" type="button" id="toggle-cancelled-registrations" aria-pressed="false">Show cancelled</button>
+            <button class="btn ghost" type="button" id="toggle-cancelled-applications" aria-pressed="false">Show rejected</button>
           </div>
-            <div class="tableSimple registrationsTable">
+          <div class="tableSimple registrationsTable">
             <div class="tableHead">
-              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="name">Name</div>
-              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="email">Email</div>
-              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="rolelevel">Role / Level</div>
-              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="phone">Phone</div>
-              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="group">Group</div>
-              <div class="sortable" data-sortable="true" data-sort-table="registrations" data-sort-key="status">Status</div>
+              <div>Name</div>
+              <div>Email</div>
+              <div>Role / Level</div>
+              <div>Phone</div>
+              <div>Status</div>
               <div>Actions</div>
             </div>
             {% for reg in registrations %}
-            {% set post_meta = reg.get("post_meta", {}) %}
-            {% set verified = reg.get("email_verified_at") %}
-            {% set paid = reg.get("payment_approved") %}
-            {% set full_name = ((reg.get("first_name","") + " " + reg.get("last_name","")).strip()) %}
             {% set reg_cancelled = reg.get("cancelled") or reg.get("cancelled_at") %}
-            {% set status_rank = 99 if reg_cancelled else 2 if paid else 1 if verified else 0 %}
+            {% set reg_review_confirmed = reg.get("review_confirmed") %}
+            {% set reg_payment_confirmed = reg.get("payment_confirmed") %}
+            {% set reg_verified = reg.get("verified") %}
             <div
               class="tableRow regRow"
-              data-name="{{ full_name.lower() }}"
-              data-email="{{ reg.get('email','').lower() }}"
-              data-role="{{ reg.get('role','').lower() }}"
-              data-level="{{ reg.get('level','').lower() }}"
-              data-phone="{{ reg.get('phone','') }}"
-              data-group="{{ '1' if post_meta.get('whatsapp_opt_in') else '0' }}"
-              data-status-rank="{{ status_rank }}"
-              data-index="{{ reg.get('order', 0) }}"
               data-details-id="{{ reg.get('_id') }}"
               data-cancelled="{{ 'true' if reg_cancelled else 'false' }}"
             >
@@ -191,66 +92,92 @@
               <div>{{ reg.get("role","").title() }} / {{ reg.get("level","").title() }}</div>
               <div>{{ reg.get("phone") }}</div>
               <div>
-                {% if post_meta.get("whatsapp_opt_in") %}
-                  <span class="statusBadge success">Requested</span>
-                {% else %}
-                  <span class="fineprint">No request</span>
-                {% end %}
-              </div>
-              <div>
                 {% if reg_cancelled %}
-                  <span class="statusBadge muted">Cancelled</span>
-                  <div class="fineprint">{{ fmt_ts(reg.get("cancelled_at")) }}</div>
-                {% elif not verified %}
+                  <span class="statusBadge muted">Rejected</span>
+                {% elif not reg_verified %}
                   <span class="statusBadge muted">Email pending</span>
-                {% elif not paid %}
+                {% elif not reg_review_confirmed %}
+                  <span class="statusBadge warn">Awaiting review</span>
+                {% elif not reg_payment_confirmed %}
                   <span class="statusBadge warn">Awaiting payment</span>
                 {% else %}
-                  <span class="statusBadge success">Paid</span>
+                  <span class="statusBadge success">Confirmed</span>
                 {% end %}
               </div>
               <div class="rowActions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                 {% if reg_cancelled %}
-                <form method="post" action="{{ base_path }}/admin/registrations/{{ reg.get('_id') }}/cancel">
+                <form method="post" action="{{ base_path }}/admin/applications/{{ reg.get('_id') }}/status">
                   <input type="hidden" name="action" value="restore">
                   <button class="btn" type="submit">Restore</button>
                 </form>
                 {% else %}
-                <form method="post" action="{{ base_path }}/admin/approve/{{ reg.get('_id') }}" style="display:flex; gap:8px;">
-                  {% if reg.get("payment_approved") %}
-                  <button class="btn" name="action" value="revoke" type="submit">Revoke</button>
-                  {% else %}
-                  <button class="btn primary" name="action" value="approve" type="submit">Approve</button>
+                {% if reg_review_confirmed %}
+                <form method="post" action="{{ base_path }}/admin/applications/{{ reg.get('_id') }}/confirm" style="display:flex; gap:8px;">
+                  {% if reg_review_confirmed and not reg_payment_confirmed %}
+                  <button class="btn primary" name="action" value="confirm_paid" type="submit">Confirm paid</button>
                   {% end %}
-                </form>
-                {% if not paid %}
-                <form method="post" action="{{ base_path }}/admin/registrations/{{ reg.get('_id') }}/cancel">
-                  <input type="hidden" name="action" value="cancel">
-                  <button class="btn ghost" type="submit">Cancel</button>
+                  <button class="btn" name="action" value="revoke" type="submit">Revoke</button>
                 </form>
                 {% end %}
+                <form method="post" action="{{ base_path }}/admin/applications/{{ reg.get('_id') }}/status">
+                  <input type="hidden" name="action" value="reject">
+                  <button class="btn ghost" type="submit">Reject</button>
+                </form>
                 {% end %}
                 <button class="btn ghost detailsToggle" type="button" aria-expanded="false" data-details-target="{{ reg.get('_id') }}">
                   <span class="chevron"></span>
                 </button>
               </div>
             </div>
+
             <div class="regDetails" data-details="{{ reg.get('_id') }}" hidden>
               <div class="regDetailGrid">
-                <div>
-                  <div class="fineprint">Invite code</div>
-                  <div>{{ reg.get("invite_code") or "-" }}</div>
-                </div>
                 <div>
                   <div class="fineprint">Registered</div>
                   <div>{{ fmt_ts(reg.get("created_at")) }}</div>
                 </div>
+                <div>
+                  <div class="fineprint">Email verified</div>
+                  <div>{{ fmt_ts(reg.get("email_verified_at")) or "-" }}</div>
+                </div>
+                <div>
+                  <div class="fineprint">Pending review email sent</div>
+                  <div>{{ fmt_ts(reg.get("application_pending_email_sent_at")) or "-" }}</div>
+                </div>
+                <div>
+                  <div class="fineprint">Confirmed</div>
+                  <div>{{ fmt_ts(reg.get("application_confirmed_at")) or "-" }}</div>
+                  {% if reg.get("application_confirmed_by") %}
+                  <div class="fineprint">By {{ reg.get("application_confirmed_by") }}</div>
+                  {% end %}
+                </div>
+                <div>
+                  <div class="fineprint">Payment confirmed</div>
+                  <div>{{ fmt_ts(reg.get("payment_confirmed_at")) or "-" }}</div>
+                  {% if reg.get("payment_confirmed_by") %}
+                  <div class="fineprint">By {{ reg.get("payment_confirmed_by") }}</div>
+                  {% end %}
+                </div>
+                <div>
+                  <div class="fineprint">Confirmation email sent</div>
+                  <div>{{ fmt_ts(reg.get("application_confirmation_email_sent_at")) or "-" }}</div>
+                </div>
+                <div>
+                  <div class="fineprint">Payment link</div>
+                  <div>
+                    {% if reg.get("payment_link") %}
+                    <a href="{{ reg.get('payment_link') }}" target="_blank" rel="noopener noreferrer">{{ reg.get("payment_link") }}</a>
+                    {% else %}
+                    -
+                    {% end %}
+                  </div>
+                </div>
                 {% if reg_cancelled %}
                 <div>
-                  <div class="fineprint">Cancelled</div>
-                  <div>{{ fmt_ts(reg.get("cancelled_at")) }}</div>
+                  <div class="fineprint">Rejected</div>
+                  <div>{{ fmt_ts(reg.get("cancelled_at")) or "-" }}</div>
                   {% if reg.get("cancelled_by") %}
-                    <div class="fineprint">By {{ reg.get("cancelled_by") }}</div>
+                  <div class="fineprint">By {{ reg.get("cancelled_by") }}</div>
                   {% end %}
                 </div>
                 {% end %}
@@ -268,117 +195,33 @@
                   <div class="fineprint">Special conditions</div>
                   <div>{{ reg.get("special_conditions") or "-" }}</div>
                 </div>
-                <div>
-                  <div class="fineprint">Allergies / notes</div>
-                  <div>{{ post_meta.get("allergies") or "-" }}</div>
-                </div>
-                <div>
-                  <div class="fineprint">WhatsApp group</div>
-                  <div>{% if post_meta.get("whatsapp_opt_in") %}Requested{% else %}-{% end %}</div>
-                </div>
-                {% for rec in post_meta.get("opposite") or [] %}
-                <div>
-                  <div class="fineprint">Opposite rec</div>
-                  <div>{{ rec.get("name") }} ({{ rec.get("contact") }})</div>
-                  <div class="fineprint">Status: {% if rec.get("registered") %}Registered{% elif rec.get("processed") %}Processed{% else %}Open{% end %}</div>
-                </div>
-                {% end %}
-                {% if post_meta.get("same") %}
-                <div>
-                  <div class="fineprint">Same role rec</div>
-                  <div>{{ post_meta.get("same").get("name") }} ({{ post_meta.get("same").get("contact") }})</div>
-                  <div class="fineprint">Status: {% if post_meta.get("same").get("registered") %}Registered{% elif post_meta.get("same").get("processed") %}Processed{% else %}Open{% end %}</div>
-                </div>
-                {% end %}
               </div>
+
               <form class="adminNotesForm" method="post" action="{{ base_path }}/admin/registrations/{{ reg.get('_id') }}/meta">
                 <div>
                   <label for="assigned_price_{{ reg.get('_id') }}">Assigned price</label>
                   <input type="text" id="assigned_price_{{ reg.get('_id') }}" name="assigned_price" placeholder="e.g. 120 EUR" value="{{ reg.get('assigned_price') or '' }}">
                 </div>
                 <div>
+                  <label for="payment_link_{{ reg.get('_id') }}">Payment link</label>
+                  <input type="url" id="payment_link_{{ reg.get('_id') }}" name="payment_link" placeholder="https://example.com/pay/participant-token" value="{{ reg.get('payment_link') or '' }}">
+                </div>
+                <div>
                   <label for="admin_comment_{{ reg.get('_id') }}">Admin comments</label>
                   <textarea id="admin_comment_{{ reg.get('_id') }}" name="admin_comment" placeholder="Notes only admins see">{{ reg.get("admin_comment") or "" }}</textarea>
                 </div>
                 <div class="formActions">
-                  <button class="btn primary" type="submit">Save notes</button>
+                  <button class="btn" type="submit" name="action" value="save">Save notes</button>
+                  {% if reg_verified and not reg_cancelled and not reg_review_confirmed %}
+                  <button class="btn primary" type="submit" name="action" value="confirm_and_send">Confirm review & send email</button>
+                  {% end %}
                 </div>
               </form>
             </div>
             {% end %}
-            {% if not registrations %}
-            <div class="fineprint">No registrations yet.</div>
-            {% end %}
-          </div>
-        </div>
 
-        <div class="card" style="grid-column: 1 / -1;">
-          <h3>Invite suggestions</h3>
-          <p class="fineprint">From participant recommendations</p>
-          {% if invite_suggestions %}
-          <div class="tableToolbar">
-            <div class="filtersRow">
-              <label class="checkboxInline">
-                <input type="checkbox" id="filter-unprocessed">
-                <span>Show unprocessed only</span>
-              </label>
-              <label class="checkboxInline">
-                <input type="checkbox" id="filter-unregistered">
-                <span>Show unregistered only</span>
-              </label>
-            </div>
-            <div class="sortRow fineprint">Click column headers to sort. Role/Level cycles role ↕ then level ↕.</div>
-          </div>
-          {% end %}
-          <div class="tableSimple suggestionsTable">
-            <div class="tableHead">
-              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="name">Suggested</div>
-              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="contact">Contact</div>
-              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="potential_role">Potential role</div>
-              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="source">Source</div>
-              <div class="sortable" data-sortable="true" data-sort-table="suggestions" data-sort-key="status">Status</div>
-            </div>
-            {% for sug in invite_suggestions %}
-            <div
-              class="tableRow"
-              data-suggestion="true"
-              data-name="{{ sug.get('name','').lower() }}"
-              data-potential-role="{{ sug.get('potential_role','').lower() }}"
-              data-source="{{ sug.get('source_name','').lower() }}"
-              data-processed="{{ 'true' if sug.get('processed') else 'false' }}"
-              data-registered="{{ 'true' if sug.get('registered') else 'false' }}"
-              data-contact="{{ sug.get('contact','').lower() }}"
-              data-index="{{ sug.get('order', 0) }}"
-            >
-              <div>{{ sug.get("name") }}</div>
-              <div class="fineprint">{{ sug.get("contact") }}</div>
-              <div>{{ sug.get("potential_role","").title() }}</div>
-              <div>
-                <div>{{ sug.get("source_name") }}</div>
-                <div class="fineprint">{{ sug.get("source_email") }}</div>
-                <div class="fineprint">Role: {{ sug.get("source_role","").title() or "-" }}</div>
-              </div>
-              <div>
-                <form method="post" action="{{ base_path }}/admin/suggestions/{{ sug.get('source_id') }}" class="suggestionForm" data-autosubmit="true">
-                  <input type="hidden" name="kind" value="{{ sug.get('kind') }}">
-                  <input type="hidden" name="index" value="{{ sug.get('index') }}">
-                  <label class="checkboxInline">
-                    <input type="checkbox" name="processed" value="true" {% if sug.get("processed") %}checked{% end %}>
-                    <span>Processed</span>
-                  </label>
-                  <label class="checkboxInline">
-                    <input type="checkbox" name="registered" value="true" {% if sug.get("registered") %}checked{% end %}>
-                    <span>Registered</span>
-                  </label>
-                </form>
-              </div>
-            </div>
-            {% end %}
-            {% if invite_suggestions %}
-            <div class="fineprint" id="suggestions-empty" hidden>No matching suggestions.</div>
-            {% end %}
-            {% if not invite_suggestions %}
-            <div class="fineprint">No suggestions yet.</div>
+            {% if not registrations %}
+            <div class="fineprint">No applications yet.</div>
             {% end %}
           </div>
         </div>
@@ -388,45 +231,6 @@
 
   <script>
     (() => {
-      const copyText = async (text) => {
-        if (navigator.clipboard && window.isSecureContext) {
-          return navigator.clipboard.writeText(text);
-        }
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.top = '-1000px';
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        try{
-          const ok = document.execCommand('copy');
-          ta.remove();
-          return ok ? Promise.resolve() : Promise.reject(new Error('copy failed'));
-        }catch(err){
-          ta.remove();
-          return Promise.reject(err);
-        }
-      };
-
-      const updateLabel = (btn, msg) => {
-        const original = btn.dataset.originalLabel || btn.textContent.trim();
-        if (!btn.dataset.originalLabel) btn.dataset.originalLabel = original;
-        btn.textContent = msg;
-        setTimeout(() => { btn.textContent = btn.dataset.originalLabel; }, 1200);
-      };
-
-      document.addEventListener('click', (evt) => {
-        const btn = evt.target.closest('[data-copy-link]');
-        if (!btn) return;
-        evt.preventDefault();
-        const link = btn.getAttribute('data-copy-link');
-        if (!link) return;
-        copyText(link)
-          .then(() => updateLabel(btn, 'Copied!'))
-          .catch(() => updateLabel(btn, 'Copy failed'));
-      });
-
       document.addEventListener('click', (evt) => {
         const toggle = evt.target.closest('[data-details-target]');
         if (!toggle) return;
@@ -444,53 +248,13 @@
         }
       });
 
-      document.addEventListener('change', (evt) => {
-        const form = evt.target.closest('form[data-autosubmit="true"]');
-        if (!form) return;
-        form.submit();
-      });
-
-      const inviteToggle = document.getElementById('toggle-archived-invites');
-      const inviteRows = Array.from(document.querySelectorAll('[data-invite-row="true"]'));
-      let showArchivedInvites = false;
-
-      const updateInviteToggleLabel = () => {
-        if (!inviteToggle) return;
-        inviteToggle.textContent = showArchivedInvites ? 'Hide used / deleted / hidden' : 'Show used / deleted / hidden';
-        inviteToggle.setAttribute('aria-pressed', showArchivedInvites ? 'true' : 'false');
-      };
-
-      const applyInviteFilter = () => {
-        inviteRows.forEach((row) => {
-          const archived = row.dataset.archived === 'true';
-          row.classList.toggle('is-hidden', archived && !showArchivedInvites);
-        });
-      };
-
-      if (inviteToggle) {
-        updateInviteToggleLabel();
-        applyInviteFilter();
-        inviteToggle.addEventListener('click', () => {
-          showArchivedInvites = !showArchivedInvites;
-          updateInviteToggleLabel();
-          applyInviteFilter();
-        });
-      } else {
-        applyInviteFilter();
-      }
-
-      const filterUnprocessed = document.getElementById('filter-unprocessed');
-      const filterUnregistered = document.getElementById('filter-unregistered');
-      const suggestionsTable = document.querySelector('.suggestionsTable');
-      const registrationsTable = document.querySelector('.registrationsTable');
-      const emptyState = document.getElementById('suggestions-empty');
-      const cancelledToggle = document.getElementById('toggle-cancelled-registrations');
-      let showCancelledRegs = false;
+      const cancelledToggle = document.getElementById('toggle-cancelled-applications');
+      let showCancelled = false;
 
       const updateCancelledToggleLabel = () => {
         if (!cancelledToggle) return;
-        cancelledToggle.textContent = showCancelledRegs ? 'Hide cancelled' : 'Show cancelled';
-        cancelledToggle.setAttribute('aria-pressed', showCancelledRegs ? 'true' : 'false');
+        cancelledToggle.textContent = showCancelled ? 'Hide rejected' : 'Show rejected';
+        cancelledToggle.setAttribute('aria-pressed', showCancelled ? 'true' : 'false');
       };
 
       const applyCancelledFilter = () => {
@@ -499,7 +263,7 @@
           const isCancelled = row.dataset.cancelled === 'true';
           const detailId = row.dataset.detailsId;
           const detailsRow = detailId ? document.querySelector(`[data-details="${detailId}"]`) : null;
-          const hide = isCancelled && !showCancelledRegs;
+          const hide = isCancelled && !showCancelled;
           row.classList.toggle('is-hidden', hide);
           if (detailsRow) detailsRow.classList.toggle('is-hidden', hide);
         });
@@ -509,193 +273,11 @@
         updateCancelledToggleLabel();
         applyCancelledFilter();
         cancelledToggle.addEventListener('click', () => {
-          showCancelledRegs = !showCancelledRegs;
+          showCancelled = !showCancelled;
           updateCancelledToggleLabel();
           applyCancelledFilter();
         });
-      } else {
-        applyCancelledFilter();
       }
-
-      const sortState = {
-        registrations: { key: null, dir: null, mode: null },
-        suggestions: { key: null, dir: null, mode: null },
-      };
-
-      const statusRank = (row) => {
-        const registered = row.dataset.registered === 'true';
-        const processed = row.dataset.processed === 'true';
-        if (!processed && !registered) return 0;
-        if (processed && !registered) return 1;
-        return 2;
-      };
-
-      const cycleSort = (table, key) => {
-        const current = sortState[table];
-        if (key === 'rolelevel') {
-          const modes = [
-            { key: 'rolelevel', mode: 'role', dir: 'asc' },
-            { key: 'rolelevel', mode: 'role', dir: 'desc' },
-            { key: 'rolelevel', mode: 'level', dir: 'asc' },
-            { key: 'rolelevel', mode: 'level', dir: 'desc' },
-            { key: null, dir: null, mode: null },
-          ];
-          const idx = modes.findIndex(
-            (m) => m.key === current.key && m.dir === current.dir && m.mode === current.mode
-          );
-          const next = modes[(idx + 1) % modes.length];
-          sortState[table] = next;
-        } else {
-          const modes = [
-            { key, dir: 'asc', mode: null },
-            { key, dir: 'desc', mode: null },
-            { key: null, dir: null, mode: null },
-          ];
-          const idx = modes.findIndex((m) => m.key === current.key && m.dir === current.dir);
-          const next = modes[(idx + 1) % modes.length];
-          sortState[table] = next;
-        }
-      };
-
-      const updateSortIndicators = () => {
-        document.querySelectorAll('[data-sortable]').forEach((el) => {
-          el.setAttribute('data-sort-indicator', '');
-        });
-        Object.entries(sortState).forEach(([table, state]) => {
-          if (!state.key) return;
-          const selector = `[data-sort-table="${table}"][data-sort-key="${state.key}"]`;
-          const header = document.querySelector(selector);
-          if (!header) return;
-          let indicator = '';
-          if (state.key === 'rolelevel') {
-            indicator =
-              state.mode === 'role'
-                ? state.dir === 'asc'
-                  ? 'R↑'
-                  : 'R↓'
-                : state.dir === 'asc'
-                  ? 'L↑'
-                  : 'L↓';
-          } else {
-            indicator = state.dir === 'asc' ? '↑' : '↓';
-          }
-          header.setAttribute('data-sort-indicator', indicator);
-        });
-      };
-
-      const sortValue = (row, key, mode) => {
-        const normalizedKey = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
-        if (key === 'rolelevel') {
-          if (mode === 'level') return row.dataset.level || '';
-          return row.dataset.role || '';
-        }
-        if (key === 'status') return Number(row.dataset.statusRank || 0);
-        if (key === 'group') return Number(row.dataset.group || 0);
-        if (key === 'contact') return row.dataset.contact || '';
-        return row.dataset[normalizedKey] || '';
-      };
-
-      const applyRegistrationSort = () => {
-        if (!registrationsTable) return;
-        const rows = Array.from(registrationsTable.querySelectorAll('.regRow'));
-        const state = sortState.registrations;
-        const details = new Map();
-        document.querySelectorAll('.regDetails').forEach((el) => {
-          const key = el.getAttribute('data-details');
-          if (key) details.set(key, el);
-        });
-
-        const sorted = rows.slice().sort((a, b) => {
-          const orderA = Number(a.dataset.index || 0);
-          const orderB = Number(b.dataset.index || 0);
-          if (!state.key) return orderA - orderB;
-          const aVal = sortValue(a, state.key, state.mode);
-          const bVal = sortValue(b, state.key, state.mode);
-          const dir = state.dir === 'desc' ? -1 : 1;
-          if (typeof aVal === 'number' || typeof bVal === 'number') {
-            return dir * (Number(aVal) - Number(bVal));
-          }
-          return dir * String(aVal).localeCompare(String(bVal)) || orderA - orderB;
-        });
-
-        const fragment = document.createDocumentFragment();
-        const head = registrationsTable.querySelector('.tableHead');
-        if (head) fragment.appendChild(head);
-        sorted.forEach((row) => {
-          fragment.appendChild(row);
-          const detailId = row.dataset.detailsId;
-          if (detailId && details.has(detailId)) {
-            fragment.appendChild(details.get(detailId));
-          }
-        });
-        registrationsTable.innerHTML = '';
-        registrationsTable.appendChild(fragment);
-        applyCancelledFilter();
-      };
-
-      const applySuggestions = () => {
-        if (!suggestionsTable) return;
-        const rows = Array.from(suggestionsTable.querySelectorAll('[data-suggestion="true"]'));
-        const state = sortState.suggestions;
-        const wantUnprocessed = !!filterUnprocessed?.checked;
-        const wantUnregistered = !!filterUnregistered?.checked;
-
-        const sorted = rows.slice().sort((a, b) => {
-          const orderA = Number(a.dataset.index || 0);
-          const orderB = Number(b.dataset.index || 0);
-          if (!state.key) return orderA - orderB;
-          const aVal = state.key === 'status' ? statusRank(a) : sortValue(a, state.key, state.mode);
-          const bVal = state.key === 'status' ? statusRank(b) : sortValue(b, state.key, state.mode);
-          const dir = state.dir === 'desc' ? -1 : 1;
-          if (typeof aVal === 'number' || typeof bVal === 'number') {
-            return dir * (Number(aVal) - Number(bVal));
-          }
-          return dir * String(aVal).localeCompare(String(bVal)) || orderA - orderB;
-        });
-
-        let visibleCount = 0;
-        sorted.forEach((row) => {
-          const processed = row.dataset.processed === 'true';
-          const registered = row.dataset.registered === 'true';
-          let show = true;
-          if (wantUnprocessed && processed) show = false;
-          if (wantUnregistered && registered) show = false;
-          if (show) visibleCount += 1;
-          row.classList.toggle('is-hidden', !show);
-        });
-
-        const fragment = document.createDocumentFragment();
-        const head = suggestionsTable.querySelector('.tableHead');
-        if (head) fragment.appendChild(head);
-        sorted.forEach((row) => fragment.appendChild(row));
-        if (emptyState) {
-          emptyState.classList.toggle('is-hidden', visibleCount !== 0);
-          fragment.appendChild(emptyState);
-        }
-        suggestionsTable.innerHTML = '';
-        suggestionsTable.appendChild(fragment);
-      };
-
-      document.querySelectorAll('[data-sortable]').forEach((el) => {
-        el.addEventListener('click', () => {
-          const table = el.getAttribute('data-sort-table');
-          const key = el.getAttribute('data-sort-key');
-          if (!table || !key || !(table in sortState)) return;
-          cycleSort(table, key);
-          updateSortIndicators();
-          applyRegistrationSort();
-          applySuggestions();
-        });
-      });
-
-      [filterUnprocessed, filterUnregistered].forEach((el) => {
-        if (!el) return;
-        el.addEventListener('change', applySuggestions);
-      });
-
-      updateSortIndicators();
-      applyRegistrationSort();
-      applySuggestions();
     })();
   </script>
 </body>

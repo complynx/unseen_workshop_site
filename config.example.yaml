@@ -1,4 +1,4 @@
-# Base URL used when generating invitation links
+# Base URL used when generating portal and verification links
 app_base_url: "http://localhost:8888"
 
 # Listening port
@@ -9,12 +9,29 @@ use_in_memory_db: false
 
 # Mongo connection (Motor / PyMongo URI)
 mongo_url: "mongodb://localhost:27017/unseen"
-invites_collection: "invites"
 users_collection: "users"
 
 # Admin credentials (email + password or pbkdf2 hash)
 admin_email: "admin@example.com"
 admin_password: "change-me"
 
+# SMTP: leave smtp_from empty or omitted to log emails instead of sending them
+# smtp_host: "localhost"
+# smtp_port: 587
+# smtp_user: null
+# smtp_password: null
+# smtp_from: "no-reply@example.com"
+# smtp_use_tls: true
+
 # Optional cookie secret (auto-generated if omitted)
 # cookie_secret: "generate-a-random-string"
+
+# Logging
+log_level: "INFO"
+
+# Optional reCAPTCHA v3 (enabled only when BOTH keys are non-empty)
+# recaptcha_site_key: "your-recaptcha-site-key"
+# recaptcha_secret_key: "your-recaptcha-secret-key"
+recaptcha_expected_action: "registration_submit"
+recaptcha_min_score: 0.5
+recaptcha_timeout_sec: 5

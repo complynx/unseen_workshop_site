@@ -3,11 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Invitation • UNSEEN</title>
+  <title>Register • UNSEEN</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
+  {% if recaptcha_enabled %}
+  <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+  {% end %}
 </head>
 <body>
   <header>
@@ -28,10 +31,11 @@
     <section class="pageSection">
       <div class="wrap applyGrid">
         <div class="card">
-          <h3>Private invitation</h3>
-          <p>You were invited to the <a href="{{ base_path or '/' }}">UNSEEN blindfolded workshop</a>. Please register carefully; we may check ID on arrival.</p>
-          <p>The venue is already booked within Amsterdam, close to the center. The exact address is shared only with confirmed registrants for privacy and safety.</p>
-          <p class="fineprint">Invites are single-person; if you wish to register with a partner of the opposite role, tick the checkbox below and add their details.</p>
+          <h3>Open registration</h3>
+          <p>You can apply for the <a href="{{ base_path or '/' }}">UNSEEN blindfolded workshop</a> here. Please register carefully; we may check ID on arrival.</p>
+          <p>The venue is already booked within Amsterdam, close to the center. The exact address is shared only with confirmed participants for privacy and safety.</p>
+          <p class="fineprint">Applications are background-checked for safety and balance. We will try to maximize openness and inclusivity, but we may still reject an application for any reason, with or without explanation.</p>
+
           {% if errors %}
           <div class="alert">
             Please fix the following:
@@ -43,7 +47,7 @@
           </div>
           {% end %}
 
-          <form method="post" action="">
+          <form method="post" action="" id="registration-form">
             <div class="formRow">
               <div>
                 <label for="first_name">First name (as on ID)</label>
@@ -105,7 +109,7 @@
               <div class="checkboxRow">
                 <label for="want_partner">
                   <input type="checkbox" id="want_partner" name="want_partner" value="true" {% if values.get('want_partner') %}checked{% end %}>
-                  <span>I want to register with a partner of an opposite role.</span>
+                  <span>I want to apply with a partner of the opposite role.</span>
                 </label>
               </div>
             </div>
@@ -121,7 +125,7 @@
                   <input type="text" id="partner_contact" name="partner_contact" value="{{ values.get('partner_contact','') }}">
                 </div>
               </div>
-              <p class="fineprint">We may decline your invitation with your partner if there is no place available for the opposite role, or if there are safety concerns.</p>
+              <p class="fineprint">We will try to keep partner requests together when possible, but safety and role balance come first.</p>
             </div>
 
             <div>
@@ -143,11 +147,12 @@
               </label>
             </div>
 
-            <p class="fineprint">After submitting you'll receive a code to confirm your email, after it is confirmed you'll see a confirmation screen (proof of submission). The admin will reach out for payment.</p>
+            <input type="hidden" name="recaptcha_token" id="recaptcha_token" value="">
+            <p class="fineprint">After submitting, you will receive an email verification code. After verification, your application will stay pending until manual review is complete.</p>
 
-            <div style="display:flex; gap:10px; justify-content:flex-end;">
+            <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
               <a class="btn" href="{{ base_path or '/' }}">Cancel</a>
-              <button class="btn primary" type="submit">Submit registration</button>
+              <button class="btn primary" type="submit" id="registration-submit">Submit application</button>
             </div>
           </form>
         </div>
@@ -156,11 +161,11 @@
           <h3>Safety-first container</h3>
           <ul>
             <li>Bring a government-issued ID that matches the name above. For safety we may check it at arrival.</li>
-            <li>Parity is strict: 16 leaders / 16 followers. If you're registering with a partner, both must be the opposite role.</li>
-            <li>Sober policy applies. No alcohol or recreational drugs before/during the event.</li>
+            <li>Role balance is managed manually. If you apply with a partner, both must be opposite roles.</li>
+            <li>Sober policy applies. No alcohol or recreational drugs before or during the event.</li>
             <li>Blindfold block is silent; safety exceptions exist. Read the safety section on the main page.</li>
           </ul>
-          <p class="fineprint">Questions? Reply to the invite email or message the organizer directly.</p>
+          <p class="fineprint">Questions? Message the organizer directly.</p>
         </div>
       </div>
     </section>
@@ -174,6 +179,44 @@
         partnerFields.style.display = partnerCheckbox.checked ? 'block' : 'none';
       });
     }
+
+    (() => {
+      const form = document.getElementById('registration-form');
+      const submit = document.getElementById('registration-submit');
+      const tokenField = document.getElementById('recaptcha_token');
+      const recaptchaEnabled = {{ "true" if recaptcha_enabled else "false" }};
+      const recaptchaSiteKey = "{{ recaptcha_site_key }}";
+      const recaptchaAction = "{{ recaptcha_action }}";
+
+      if (!form || !submit || !tokenField || !recaptchaEnabled) return;
+
+      let submitting = false;
+      form.addEventListener('submit', async (event) => {
+        if (submitting) return;
+        event.preventDefault();
+        if (!window.grecaptcha || typeof window.grecaptcha.execute !== 'function') {
+          alert('Security check is unavailable right now. Please try again.');
+          return;
+        }
+        try {
+          submit.disabled = true;
+          const token = await new Promise((resolve, reject) => {
+            window.grecaptcha.ready(() => {
+              window.grecaptcha.execute(recaptchaSiteKey, { action: recaptchaAction })
+                .then(resolve)
+                .catch(reject);
+            });
+          });
+          if (!token) throw new Error('missing token');
+          tokenField.value = token;
+          submitting = true;
+          form.submit();
+        } catch (_error) {
+          submit.disabled = false;
+          alert('Security check failed. Please try again.');
+        }
+      });
+    })();
   </script>
 </body>
 </html>

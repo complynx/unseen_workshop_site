@@ -3,3 +3,4 @@ motor>=3.7
 pydantic[email]>=2.12
 pydantic-settings[yaml]>=2.12
 PyYAML>=6.0
+qrcode[pil]>=8.0

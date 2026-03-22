@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>UNSEEN — Blindfold Dance Workshop (Amsterdam)</title>
-  <meta name="description" content="UNSEEN — an invitation-only blindfold dance workshop in Amsterdam. 6 hours total, 3-hour silent blindfold block. Safety-first container." />
+  <meta name="description" content="UNSEEN — an open-registration blindfold dance workshop in Amsterdam. 3 hours total, 1.5-hour silent blindfold block. Safety-first container." />
 
   <!-- Optional: Google Fonts (swap if you prefer) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,6 +32,7 @@
         </nav>
 
         <div class="cta">
+          <a class="btn primary" href="{{ register_url or '/register' }}">Register</a>
           <a class="btn" href="{{ login_url or '/login' }}">Login</a>
           <a class="btn" href="#tickets">Pricing</a>
         </div>
@@ -45,25 +46,26 @@
       <div class="wrap">
         <div class="heroGrid">
           <div>
-            <div class="kicker">Amsterdam • Sat 21 February 2026 • Invitation-only</div>
+            <div class="kicker">Amsterdam • Sat 30 May 2026 • Open registration</div>
             <h1 class="title">
               <img class="logoHero" src="{{ static_url('unseen_logo_simple_plain.svg') }}" alt="UNSEEN logo">
             </h1>
             <p class="subtitle">
               A blindfolded partner-dance experience designed for the Zouk community.
-              Six hours total, culminating in a <b>3-hour silent blindfold block</b>.
+              Three hours total, culminating in a <b>~1.5-hour silent blindfold block</b>.
               Pattern-breaking, deeper sensing, and meeting people anew — inside a firm, safety-first container.
             </p>
 
             <div class="metaRow">
-              <div class="pill"><b>Time window</b> ~11:00–20:00 (+ debrief)</div>
+              <div class="pill"><b>Time window</b> ~17:00–20:00</div>
               <div class="pill"><b>Capacity</b> 32 (16L / 16F)</div>
-              <div class="pill"><b>Team</b> 4–5</div>
-              <div class="pill"><b>Venue</b> announced by 15 Feb (confirmed only)</div>
+              <div class="pill"><b>Team</b> 3–4</div>
+              <div class="pill"><b>Venue</b> announced by 15 May (confirmed only)</div>
             </div>
 
             <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
-              <a class="btn primary" href="#apply">Invitation process <span class="arrow">→</span></a>
+              <a class="btn primary" href="{{ register_url or '/register' }}">Register <span class="arrow">→</span></a>
+              <a class="btn" href="#apply">Application info</a>
               <a class="btn" href="#safety">Read safety rules</a>
               <a class="btn" href="{{ login_url or '/login' }}">Login</a>
             </div>
@@ -75,7 +77,7 @@
 
           <div class="posterCard" aria-label="Poster image">
             <!-- Replace with your file path if needed -->
-            <img src="{{ static_url('dark_sense.png') }}" alt="UNSEEN poster artwork (blindfolded couple)" />
+            <img src="{{ static_url('dark_sense.avif') }}" alt="UNSEEN poster artwork (blindfolded couple)" />
           </div>
         </div>
       </div>
@@ -85,7 +87,7 @@
     <section id="video">
       <div class="wrap">
         <div class="sectionHead">
-          <h2>Invitation</h2>
+          <h2>Preview</h2>
           <div class="line"></div>
           <div class="sectionNote">
             Press play to watch.
@@ -95,7 +97,7 @@
         <div class="card videoCard">
           <div class="playHint">
             <span class="playPulse" aria-hidden="true"></span>
-            <span>Press play to watch the invitation (audio on).</span>
+            <span>Press play to watch the workshop preview (audio on).</span>
           </div>
           <div class="videoWrapper">
             <video controls preload="metadata" playsinline aria-label="UNSEEN workshop video">
@@ -138,7 +140,7 @@
             <h3>Who it’s for</h3>
             <ul>
               <li>Zouk dancers from <b>improver+</b> (below intermediate may find it challenging).</li>
-              <li>Trusted multi-dance participants may be invited case-by-case.</li>
+              <li>Experienced multi-dance participants may apply case-by-case.</li>
               <li>Solo registrations are welcome (rotation is part of the format).</li>
               <li><b>18+ only.</b></li>
             </ul>
@@ -160,7 +162,7 @@
 
         <div class="grid2">
           <div class="card">
-            <h3>Part 1 — Preparation (≈3h)</h3>
+            <h3>Part 1 — Preparation (≈1.5h)</h3>
             <ul>
               <li>Warm-up, grounding, and sensory orientation</li>
               <li>Close-embrace safety & boundaries (shown and practiced)</li>
@@ -169,7 +171,7 @@
             </ul>
           </div>
           <div class="card">
-            <h3>Part 2 — Silent Block (≈3h)</h3>
+            <h3>Part 2 — Silent Block (≈1.5h)</h3>
             <ul>
               <li>Blindfolded, <b>no participant talking</b> (safety exceptions exist)</li>
               <li>Rotation + moments of anonymity</li>
@@ -349,23 +351,23 @@
           <summary>Open to read the full Q&A <span class="chev">›</span></summary>
           <div class="content">
             <ul class="qaList">
-              <li><span class="qa-q">Q: When and where is it?</span><span class="qa-a">A: Saturday 21 February 2026, in the Amsterdam area close to the center. Time window is approximately 11:00–20:00, plus a closing debrief and grounding. The venue is already booked; the exact address will be shared with confirmed participants only, no later than 15 February 2026.</span></li>
+              <li><span class="qa-q">Q: When and where is it?</span><span class="qa-a">A: Saturday 30 May 2026, in the Amsterdam area close to the center. Time window is approximately 17:00–20:00, plus a closing debrief and grounding. The venue is already booked; the exact address will be shared with confirmed participants only, no later than 15 May 2026.</span></li>
               <li><span class="qa-q">Q: Why is the venue shared only with confirmed participants?</span><span class="qa-a">A: For participant safety and privacy. The confirmed venue is shared only with registered participants.</span></li>
-              <li><span class="qa-q">Q: How long is the workshop and how is it structured?</span><span class="qa-a">A: About 6 hours total, split into two ~3-hour sections:</span>
+              <li><span class="qa-q">Q: How long is the workshop and how is it structured?</span><span class="qa-a">A: About 3 hours total, split into two ~1.5-hour sections:</span>
                 <ol>
                   <li>Preparation & training (signals, boundaries, safe blindfold dancing)</li>
-                  <li>The 3-hour Silent Blindfold Block (no participant talking; safety exceptions exist), followed by a debrief/grounding.</li>
+                  <li>The ~1.5-hour Silent Blindfold Block (no participant talking; safety exceptions exist), followed by a debrief/grounding.</li>
                 </ol>
               </li>
               <li><span class="qa-q">Q: Is there a break?</span><span class="qa-a">A: Yes—one main break between the two sections. The first part is also more flexible for quick step-outs if needed.</span></li>
-              <li><span class="qa-q">Q: Who is this workshop for?</span><span class="qa-a">A: Primarily for the Zouk community (improver+). It can be challenging for dancers below intermediate. Trusted, highly skilled dancers from other couple dances may be invited case-by-case.</span></li>
+              <li><span class="qa-q">Q: Who is this workshop for?</span><span class="qa-a">A: Primarily for the Zouk community (improver+). It can be challenging for dancers below intermediate. Experienced dancers from other couple dances may also apply case-by-case.</span></li>
               <li><span class="qa-q">Q: Can I join if I’ve never danced blindfolded?</span><span class="qa-a">A: Yes. The first part includes gradual accommodation and safety training. If you have a known strong fear of darkness or blindfolding, this workshop may not be suitable.</span></li>
               <li><span class="qa-q">Q: Is it okay if I’m anxious about blindfolding?</span><span class="qa-a">A: Many people are. Safety measures, clear rules, and instructed team are present to support you. If unexpected anxiety arises during the workshop, the team will help.</span></li>
-              <li><span class="qa-q">Q: Is it okay if I know in advance I can’t stay blindfolded for 3 hours?</span><span class="qa-a">A: If you already know you won’t be able to stay in the Silent Block for the full duration, it’s recommended not to join.</span></li>
-              <li><span class="qa-q">Q: Is it invitation-only?</span><span class="qa-a">A: Yes. No one can buy a ticket without an invitation.</span></li>
-              <li><span class="qa-q">Q: What is the registration flow?</span><span class="qa-a">A: Get invited → fill the registration form → pay → confirmed → can invite others. Invitations are reviewed to maintain safety, trust, and role parity.</span></li>
+              <li><span class="qa-q">Q: Is it okay if I know in advance I can’t stay blindfolded for the full silent block?</span><span class="qa-a">A: If you already know you won’t be able to stay in the Silent Block for the full duration, it’s recommended not to join.</span></li>
+              <li><span class="qa-q">Q: Is registration open?</span><span class="qa-a">A: Yes. Anyone can apply through the public registration form.</span></li>
+              <li><span class="qa-q">Q: What is the registration flow?</span><span class="qa-a">A: Apply → verify your email → background review → if confirmed, receive a confirmation email and payment link. Applications are reviewed for safety and role balance.</span></li>
               <li><span class="qa-q">Q: Do I need to bring ID?</span><span class="qa-a">A: Yes. Please bring a government-issued ID (passport/driver license) that matches the registration name. For container safety, we may ask to check it to confirm the right person is entering.</span></li>
-              <li><span class="qa-q">Q: Can organizers decline an invite?</span><span class="qa-a">A: Yes. Organizers may decline when necessary (safety, trust, role parity, or container integrity). Unusual cases are handled individually.</span></li>
+              <li><span class="qa-q">Q: Can organizers reject an application?</span><span class="qa-a">A: Yes. We will try to maximize openness and inclusivity, but we may still reject an application for safety, balance, or any other reason, with or without explanation.</span></li>
               <li><span class="qa-q">Q: Is there an age limit?</span><span class="qa-a">A: Yes—18+ only.</span></li>
               <li><span class="qa-q">Q: Can I register solo?</span><span class="qa-a">A: Yes. Solo registration is welcome.</span></li>
               <li><span class="qa-q">Q: Can I register with a partner?</span><span class="qa-a">A: Yes. Add a note about your partner in the registration form; we will try to add you both if spots allow, or tell you otherwise.</span></li>
@@ -412,11 +414,11 @@
               <li><span class="qa-q">Q: How will opt-outs be enforced without markers?</span><span class="qa-a">A: The photographer is briefed and the team reviews material before publishing. With only 32 participants, opt-outs can be handled without on-body markers.</span></li>
               <li><span class="qa-q">Q: Will the workshop be recorded during the silent blindfolded part?</span><span class="qa-a">A: No—never.</span></li>
               <li><span class="qa-q">Q: What language is the workshop taught in?</span><span class="qa-a">A: English.</span></li>
-              <li><span class="qa-q">Q: What is the registration deadline?</span><span class="qa-a">A: Strict cutoff is 15 February 2026.</span></li>
-              <li><span class="qa-q">Q: What is the capacity?</span><span class="qa-a">A: 16 couples / 32 people total. First come, first served (within invitation/approval and parity).</span></li>
-              <li><span class="qa-q">Q: What is the refund policy?</span><span class="qa-a">A: Full refund until 15 January, 50% refund until 1 February, no refunds after that.</span></li>
+              <li><span class="qa-q">Q: What is the registration deadline?</span><span class="qa-a">A: Strict cutoff is 15 May 2026.</span></li>
+              <li><span class="qa-q">Q: What is the capacity?</span><span class="qa-a">A: 16 couples / 32 people total. Confirmation depends on safety review and role balance.</span></li>
+              <li><span class="qa-q">Q: What is the refund policy?</span><span class="qa-a">A: Full refund until 30 April, 50% refund until 15 May, no refunds after that.</span></li>
               <li><span class="qa-q">Q: What if the event is cancelled by the organizers?</span><span class="qa-a">A: If a cancellation comes from our side (e.g., venue decline, lockdown, force majeure), we will issue a full refund to confirmed participants.</span></li>
-              <li><span class="qa-q">Q: Can I transfer or resell my ticket?</span><span class="qa-a">A: Transfers may be possible only with organizer confirmation in advance. Strict invitation-only; no public resale.</span></li>
+              <li><span class="qa-q">Q: Can I transfer or resell my ticket?</span><span class="qa-a">A: Transfers may be possible only with organizer confirmation in advance. No public resale.</span></li>
               <li><span class="qa-q">Q: What if I’m sick close to the event?</span><span class="qa-a">A: Please don’t come. Partial refund may be considered with flexible proof (positive test, pharmacy receipt, or medical provider message), case-by-case.</span></li>
               <li><span class="qa-q">Q: Is there water provided?</span><span class="qa-a">A: Water will be available.</span></li>
               <li><span class="qa-q">Q: Is there an afterparty or social?</span><span class="qa-a">A: No social is recommended immediately after; the experience can be physically or emotionally intense. There will be a closing debrief and time to ground.</span></li>
@@ -435,7 +437,7 @@
           <h2>Tickets</h2>
           <div class="line"></div>
           <div class="sectionNote">
-            Invitation-only. Strict parity. Small container.
+            Open application. Small container. Manual safety and balance review.
           </div>
         </div>
 
@@ -443,9 +445,9 @@
           <div class="card">
             <h3>Pricing</h3>
             <ul>
-              <li><b>€60</b> Early Bird (until <b>20 Jan</b>)</li>
-              <li><b>€75</b> Regular</li>
-              <li>Registration closes <b>15 Feb</b></li>
+              <li><b>€25</b> Early Bird (until <b>15 Apr</b>)</li>
+              <li><b>€30</b> Regular</li>
+              <li>Registration closes <b>15 May</b></li>
             </ul>
             <p style="margin-top:10px;">Payment: primarily Tikkie / SEPA (other options can be arranged case-by-case).</p>
           </div>
@@ -453,8 +455,8 @@
           <div class="card">
             <h3>Refund policy</h3>
             <ul>
-              <li>Full refund until <b>15 Jan</b></li>
-              <li>50% refund until <b>1 Feb</b></li>
+              <li>Full refund until <b>30 Apr</b></li>
+              <li>50% refund until <b>15 May</b></li>
               <li>No refunds after that</li>
             </ul>
             <p style="margin-top:10px;">
@@ -482,25 +484,24 @@
           <h2>Apply</h2>
           <div class="line"></div>
           <div class="sectionNote">
-            Invitation-only. Curated list. Private forms go only to invited dancers.
+            Registration is open. Every application is reviewed manually.
           </div>
         </div>
 
         <div class="card">
-          <h3>Invitation process</h3>
+          <h3>Application process</h3>
           <p>
-            UNSEEN runs on invitations to keep the container small, sober, and balanced (16 leaders / 16 followers).
-            There is no public application form.
+            Registration is open to anyone who feels aligned with the format and safety container.
           </p>
           <ul>
-            <li>We curate a list from Amsterdam Zouk regulars and trusted visitors aligned with the safety-first vibe.</li>
-            <li>Invitations go out in small waves; we may ask a quick context check before sending one.</li>
-            <li>If you’re invited, you’ll receive a private invitation form with the rules recap and payment instructions to confirm your spot.</li>
-            <li>Declines or timeouts free the slot for the next person on the curated waitlist.</li>
+            <li>Fill in the public application form and verify your email.</li>
+            <li>Applications are background-checked for safety and reviewed for role balance.</li>
+            <li>We will try to maximize openness and inclusivity, but we may still reject an application for any reason, with or without explanation.</li>
+            <li>If your application is confirmed, the admin will send a confirmation email and a payment link.</li>
           </ul>
-          <p class="fineprint">
-            Want to be considered and we don’t know you yet? Message Daniel (DJ Touchzouk) with a short intro.
-          </p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+            <a class="btn primary" href="{{ register_url or '/register' }}">Register now</a>
+          </div>
         </div>
       </div>
     </section>
@@ -510,6 +511,7 @@
         <div class="footGrid">
           <div>© 2026 Touchzouk • Amsterdam</div>
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="btn" href="{{ register_url or '/register' }}">Register</a>
             <a class="btn" href="#safety">Safety</a>
             <a class="btn" href="#apply">Apply</a>
           </div>

@@ -30,135 +30,58 @@
     <section class="pageSection">
       <div class="wrap dashGrid">
         <div class="card">
-          <h3>Your registration</h3>
-          <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
-            {% if user.get("payment_approved") %}
-              <span class="statusBadge success">Payment approved</span>
+          <h3>Application status</h3>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+            {% if user.get("cancelled_at") %}
+              <span class="statusBadge muted">Not accepted</span>
+            {% elif payment_confirmed %}
+              <span class="statusBadge success">Confirmed</span>
+            {% elif application_confirmed %}
+              <span class="statusBadge warn">Awaiting payment</span>
             {% else %}
-              <span class="statusBadge muted">Awaiting payment approval</span>
-              <span class="fineprint">We will send an email when your payment is confirmed.</span>
+              <span class="statusBadge warn">Pending review</span>
             {% end %}
           </div>
+
+          {% if user.get("cancelled_at") %}
+            <p class="fineprint">This application is closed. If you think this is a mistake, contact the organizer directly.</p>
+          {% elif payment_confirmed %}
+            <p>Your registration is fully confirmed.</p>
+            <p class="fineprint">Payment has been confirmed by the organizer.</p>
+          {% elif application_confirmed %}
+            <p>Your application was accepted and is now awaiting payment confirmation.</p>
+            <p class="fineprint">The organizer has sent you a payment email. Your registration will be fully confirmed after payment is marked as received.</p>
+            {% if payment_link %}
+            <div style="display:flex; gap:10px; justify-content:flex-start; flex-wrap:wrap; margin-top:12px;">
+              <a class="btn primary" href="{{ payment_link }}" target="_blank" rel="noopener noreferrer">Open payment link</a>
+            </div>
+            {% else %}
+            <p class="fineprint">Your payment link will appear here once it is assigned.</p>
+            {% end %}
+          {% else %}
+            <p>Your application is not confirmed yet.</p>
+            <p class="fineprint">We background-check applications for safety and balance. We will try to maximize openness and inclusivity, but we may still reject an application for any reason, with or without explanation.</p>
+            <p class="fineprint">If your application is accepted, the admin will send a payment email and a link for payment.</p>
+          {% end %}
+        </div>
+
+        <div class="card">
+          <h3>Your registration</h3>
           <div class="regGrid">
             <div><b>Name</b><br>{{ user.get("first_name") }} {{ user.get("last_name") }}</div>
             <div><b>Email</b><br>{{ user.get("email") }}</div>
+            <div><b>Phone</b><br>{{ user.get("phone") }}</div>
             <div><b>Role</b><br>{{ user.get("role","").title() }}</div>
             <div><b>Level</b><br>{{ user.get("level","").title() }}</div>
-            <div><b>Phone</b><br>{{ user.get("phone") }}</div>
+            <div><b>Email verified</b><br>{{ fmt_ts(user.get("email_verified_at")) or "Pending" }}</div>
             {% if user.get("partner_name") %}
-            <div><b>Partner</b><br>{{ user.get("partner_name") }} ({{ user.get("partner_contact") }})</div>
+            <div><b>Partner</b><br>{{ user.get("partner_name") }}{% if user.get("partner_contact") %} ({{ user.get("partner_contact") }}){% end %}</div>
+            {% end %}
+            {% if user.get("special_conditions") %}
+            <div><b>Special conditions</b><br>{{ user.get("special_conditions") }}</div>
             {% end %}
           </div>
-          <p class="fineprint">We will reach out for payment via the contact provided.</p>
         </div>
-
-        <div class="card">
-          <h3>Invite recommendations</h3>
-          {% if errors %}
-          <div class="alert">
-            {% for err in errors %}
-              <div>{{ err.get("msg") }}</div>
-            {% end %}
-          </div>
-          {% end %}
-
-          {% if user.get("payment_approved") %}
-          {% set opp_list = post_approval.get('opposite',[{}, {}, {}]) %}
-          {% set same_entry = post_approval.get('same', {}) %}
-          <form method="post" action="{{ base_path }}/portal">
-            <div class="formRow">
-              <div>
-                <label>Opposite role #1</label>
-                {% set opp1_locked = opp_list[0].get('processed') or opp_list[0].get('registered') %}
-                <input type="text" name="opp_name_1" placeholder="Name" value="{{ opp_list[0].get('name','') }}" {% if opp1_locked %}disabled{% end %}>
-              </div>
-              <div>
-                <label>Contact</label>
-                <input type="text" name="opp_contact_1" placeholder="Email / phone" value="{{ opp_list[0].get('contact','') }}" {% if opp1_locked %}disabled{% end %}>
-              </div>
-            </div>
-            {% if opp1_locked %}
-            <div class="fineprint">Locked by admin.</div>
-            {% end %}
-            <div class="formRow">
-              <div>
-                <label>Opposite role #2</label>
-                {% set opp2_locked = opp_list[1].get('processed') or opp_list[1].get('registered') %}
-                <input type="text" name="opp_name_2" placeholder="Name" value="{{ opp_list[1].get('name','') }}" {% if opp2_locked %}disabled{% end %}>
-              </div>
-              <div>
-                <label>Contact</label>
-                <input type="text" name="opp_contact_2" placeholder="Email / phone" value="{{ opp_list[1].get('contact','') }}" {% if opp2_locked %}disabled{% end %}>
-              </div>
-            </div>
-            {% if opp2_locked %}
-            <div class="fineprint">Locked by admin.</div>
-            {% end %}
-            <div class="formRow">
-              <div>
-                <label>Opposite role #3</label>
-                {% set opp3_locked = opp_list[2].get('processed') or opp_list[2].get('registered') %}
-                <input type="text" name="opp_name_3" placeholder="Name" value="{{ opp_list[2].get('name','') }}" {% if opp3_locked %}disabled{% end %}>
-              </div>
-              <div>
-                <label>Contact</label>
-                <input type="text" name="opp_contact_3" placeholder="Email / phone" value="{{ opp_list[2].get('contact','') }}" {% if opp3_locked %}disabled{% end %}>
-              </div>
-            </div>
-            {% if opp3_locked %}
-            <div class="fineprint">Locked by admin.</div>
-            {% end %}
-
-            <div class="formRow">
-              <div>
-                <label>Same role</label>
-                {% set same_locked = same_entry.get('processed') or same_entry.get('registered') %}
-                <input type="text" name="same_name" placeholder="Name" value="{{ same_entry.get('name','') }}" {% if same_locked %}disabled{% end %}>
-              </div>
-              <div>
-                <label>Contact</label>
-                <input type="text" name="same_contact" placeholder="Email / phone" value="{{ same_entry.get('contact','') }}" {% if same_locked %}disabled{% end %}>
-              </div>
-            </div>
-            {% if same_locked %}
-            <div class="fineprint">Locked by admin.</div>
-            {% end %}
-
-            <div>
-              <label for="allergies">Any allergies, food limitations or other notes about you?</label>
-              <textarea id="allergies" name="allergies" placeholder="Add details">{{ post_approval.get('allergies','') }}</textarea>
-            </div>
-
-            <div class="checkboxRow">
-              <label style="display:flex; gap:10px; align-items:flex-start;">
-                <input type="checkbox" name="whatsapp_opt_in" value="true" {% if post_approval.get('whatsapp_opt_in') %}checked{% end %}>
-                <span>Add me to the participants WhatsApp group</span>
-              </label>
-            </div>
-
-            <div style="display:flex; gap:10px; justify-content:flex-end;">
-              <button class="btn primary" type="submit">Save details</button>
-            </div>
-          </form>
-          {% else %}
-            <p class="fineprint">Once payment is approved, you can add invite recommendations and notes about yourself here.</p>
-          {% end %}
-        </div>
-
-        {% if user.get("is_admin") %}
-        <div class="card">
-          <h3>Confirmed participants</h3>
-          <span class="fineprint">(names only)</span>
-          <ul class="participantList">
-            {% for p in participants %}
-              <li>{{ p }}</li>
-            {% end %}
-            {% if not participants %}
-              <li class="fineprint">No participants listed yet.</li>
-            {% end %}
-          </ul>
-        </div>
-        {% end %}
       </div>
     </section>
   </main>
