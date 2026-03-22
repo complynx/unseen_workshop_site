@@ -21,7 +21,7 @@ import tornado.ioloop
 import tornado.web
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection, AsyncIOMotorDatabase
-from pydantic import AliasChoices, BaseModel, EmailStr, Field, ValidationError, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, Field, ValidationError, field_validator, model_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
