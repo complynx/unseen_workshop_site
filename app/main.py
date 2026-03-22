@@ -74,11 +74,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     recaptcha_site_key: Optional[str] = Field(
         default=None,
-        validation_alias=AliasChoices("recaptcha_site_key", "recaptcha_id"),
     )
     recaptcha_secret_key: Optional[str] = Field(
         default=None,
-        validation_alias=AliasChoices("recaptcha_secret_key", "recaptcha_secret"),
     )
     recaptcha_expected_action: str = "registration_submit"
     recaptcha_min_score: float = 0.5
