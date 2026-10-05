@@ -28,7 +28,6 @@
     <section class="pageSection">
       <div class="wrap">
         <div class="pageTitle">
-          <div class="kicker">my portal</div>
           <h1>{{ user.get("first_name") }} {{ user.get("last_name") }}</h1>
         </div>
 
@@ -63,9 +62,9 @@
               <p class="fineprint">Your payment link will appear here once it is assigned.</p>
               {% end %}
             {% else %}
-              <p>Your application is not confirmed yet.</p>
-              <p class="fineprint">We background-check applications for safety and balance. We will try to maximize openness and inclusivity, but we may still reject an application for any reason, with or without explanation.</p>
-              <p class="fineprint">If your application is accepted, the admin will send a payment email and a link for payment.</p>
+              <p>Your application is waiting for review.</p>
+              <p class="fineprint">We check applications for safety and role balance. We aim to be open, but we may decline any application, with or without explanation.</p>
+              <p class="fineprint">If accepted, you get an email with a payment link.</p>
             {% end %}
           </div>
 

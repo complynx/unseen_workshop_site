@@ -1,6 +1,7 @@
 /* UNSEEN — visual language taken from the poster:
    pure black, light rounded type, orange logo accent, dark wine secondary,
-   hairlines as the only decoration, one large ring in the hero. No cards, no glows, no gradients. */
+   hairlines as the only decoration. The hero uses the poster photo as a full-bleed
+   backdrop with a warm rim-light bloom. No cards, no gradients elsewhere. */
 
 :root{
   --bg: #040202;
@@ -50,14 +51,14 @@ img{ max-width: 100%; }
 /* ---------- type ---------- */
 .display{ font-family: var(--display); font-weight: 300; }
 h1, h2, h3, h4{ font-family: var(--display); font-weight: 300; margin: 0; line-height: 1.2; }
-h2{ font-size: 15px; letter-spacing: .32em; color: var(--wine); text-transform: lowercase; }
-h3{ font-size: 21px; color: var(--ink); margin-bottom: 14px; }
+h2{ font-size: clamp(30px, 3.6vw, 42px); letter-spacing: 0; color: var(--ink); text-transform: lowercase; }
+h3{ font-size: 24px; color: var(--ink); margin-bottom: 14px; }
 .lead{ font-size: 20px; line-height: 1.55; color: var(--muted); }
 .kicker{
   font-family: var(--display);
   font-size: 13px;
   letter-spacing: .18em;
-  color: var(--wine);
+  color: var(--orange-soft);
 }
 .fineprint{ color: var(--faint); font-size: 14px; }
 .fineprint a{ color: var(--orange-soft); }
@@ -104,8 +105,8 @@ header{
   white-space: nowrap;
 }
 .btn:hover{ border-color: var(--orange); color: var(--orange); text-decoration: none; }
-.btn.primary{ border-color: var(--orange); color: var(--orange); }
-.btn.primary:hover{ background: var(--orange); color: #000; }
+.btn.primary{ background: var(--orange); border-color: var(--orange); color: #000; }
+.btn.primary:hover{ background: var(--ink); border-color: var(--ink); color: #000; }
 .btn.ghost{ border-color: transparent; color: var(--muted); padding-inline: 12px; }
 .btn.ghost:hover{ color: var(--orange); }
 .btn:disabled{ opacity: .45; cursor: not-allowed; }
@@ -124,35 +125,34 @@ header{
 }
 
 /* ---------- hero ---------- */
-.hero{ position: relative; padding: 60px 0 40px; overflow: hidden; }
-.hero .ring.a{ width: 520px; right: -140px; top: -120px; }
-.heroGrid{
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(280px, 500px) 1fr;
-  gap: 60px;
-  align-items: center;
+.hero{
+  position: relative; overflow: hidden;
+  padding: 0;
+  min-height: min(94vh, 1000px);
+  display: flex; align-items: flex-end;
+  background: url("dark_sense.avif") center 30% / cover no-repeat;
 }
-.poster{ position: relative; margin: 0; aspect-ratio: 4 / 5; overflow: hidden; }
-/* Show only the couple: the poster's own text is repeated by the hero copy.
-   Offsets are tuned to the current artwork; revisit when the poster changes. */
-.poster img{ position: absolute; display: block; max-width: none; width: 200%; height: auto; left: -50%; top: -41%; }
-.poster::after{
-  /* fade the poster edges into the page background */
+.hero::before{
+  /* warm bloom where the rim light falls, and a fade into the page at the bottom */
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  box-shadow: inset 0 0 80px 50px var(--bg);
+  background:
+    radial-gradient(60% 55% at 28% 62%, rgba(168,54,43,.38) 0%, rgba(168,54,43,0) 70%),
+    linear-gradient(180deg, rgba(4,2,2,.65) 0%, rgba(4,2,2,.10) 30%, rgba(4,2,2,.86) 70%, var(--bg) 100%);
 }
-.heroText .kicker{ margin-bottom: 30px; }
-.logoHero{ display: block; width: min(100%, 420px); height: auto; }
+.heroGrid{ position: relative; padding: 0 0 70px; }
+.poster{ display: none; }
+.heroText{ max-width: 760px; }
+.heroText .kicker{ margin-bottom: 26px; }
+.logoHero{ display: block; width: min(100%, 360px); height: auto; }
 .tagline{
   font-family: var(--display);
-  font-size: clamp(22px, 3vw, 30px);
-  color: var(--wine);
-  margin: 18px 0 30px;
+  font-size: clamp(32px, 4.4vw, 54px); line-height: 1.05; letter-spacing: -.01em;
+  color: var(--ink);
+  margin: 16px 0 24px;
 }
-.heroText .lead{ max-width: 52ch; }
+.heroText .lead{ max-width: 60ch; font-size: 19px; }
 .meta{
-  list-style: none; margin: 34px 0 0; padding: 0;
+  list-style: none; margin: 30px 0 0; padding: 0;
   display: grid; gap: 10px;
   color: var(--muted); font-size: 15px;
 }
@@ -160,7 +160,7 @@ header{
 .meta span:first-child{
   flex: 0 0 90px;
   font-family: var(--display); font-size: 12px; letter-spacing: .18em;
-  color: var(--wine); padding-top: 3px;
+  color: var(--orange-soft); padding-top: 3px;
 }
 .hero .actions{ margin-top: 38px; }
 .hero .fineprint{ margin-top: 22px; }
@@ -176,10 +176,10 @@ header{
 }
 .stat .n{
   font-family: var(--display); font-weight: 300;
-  font-size: 64px; line-height: 1; color: var(--orange);
+  font-size: 76px; line-height: 1; color: var(--orange);
   letter-spacing: -.02em;
 }
-.stat .n small{ font-size: 24px; margin-left: 2px; letter-spacing: 0; }
+.stat .n small{ font-size: 28px; margin-left: 2px; letter-spacing: 0; }
 .stat .t{
   font-size: 15px; line-height: 1.4; color: var(--muted);
   margin-top: 12px; max-width: 20ch;
@@ -188,11 +188,10 @@ header{
 /* ---------- sections ---------- */
 section{ padding: 70px 0; }
 .sectionHead{ margin-bottom: 40px; }
-.sectionHead p{ color: var(--muted); max-width: 60ch; margin-top: 14px; font-size: 18px; }
 .rule{ height: 1px; background: var(--hair); margin: 0 0 40px; }
 
 .cols{ display: grid; grid-template-columns: 1fr 1fr; gap: 50px 70px; }
-.cols > div{ border-top: 1px solid var(--hair); padding-top: 24px; }
+.cols > div{ border-top: 1px solid var(--hair-orange); padding-top: 24px; }
 .cols p{ color: var(--muted); }
 
 ul.dots{ list-style: none; margin: 0; padding: 0; color: var(--muted); }
@@ -200,12 +199,6 @@ ul.dots li{ position: relative; padding-left: 24px; margin: 10px 0; }
 ul.dots li::before{
   content: ""; position: absolute; left: 0; top: .85em;
   width: 10px; height: 1px; background: var(--orange-soft);
-}
-
-.tags{ display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px; }
-.tags span{
-  font-family: var(--display); font-size: 12px; letter-spacing: .14em;
-  color: var(--wine); text-transform: lowercase;
 }
 
 /* video */
@@ -219,7 +212,7 @@ ul.dots li::before{
 /* people */
 .people{ display: grid; gap: 22px; }
 .person{ display: grid; gap: 4px; }
-.person a{ font-family: var(--display); font-size: 17px; color: var(--ink); }
+.person a{ font-family: var(--display); font-size: 19px; color: var(--ink); }
 .person a:hover{ color: var(--orange); text-decoration: none; }
 .person span{ color: var(--muted); font-size: 15px; }
 
@@ -240,8 +233,12 @@ ul.dots li::before{
 .prices{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-bottom: 50px; }
 .price .n{ font-family: var(--display); font-size: 54px; line-height: 1; color: var(--orange); }
 .price .n small{ font-size: 20px; }
-.price .t{ font-family: var(--display); font-size: 13px; letter-spacing: .14em; color: var(--wine); margin-top: 10px; text-transform: lowercase; }
+.price .t{ font-family: var(--display); font-size: 13px; letter-spacing: .14em; color: var(--orange-soft); margin-top: 10px; text-transform: lowercase; }
 .price .d{ color: var(--muted); font-size: 15px; margin-top: 6px; }
+
+section#safety, section#tickets{
+  background: radial-gradient(70% 60% at 50% 0%, rgba(109,31,29,.28) 0%, rgba(109,31,29,0) 70%);
+}
 
 /* ---------- accordion ---------- */
 .acc{ border-top: 1px solid var(--hair); }
@@ -250,7 +247,7 @@ summary{
   list-style: none; cursor: pointer; user-select: none;
   display: flex; align-items: center; justify-content: space-between; gap: 20px;
   padding: 20px 0;
-  font-family: var(--display); font-size: 16px; color: var(--ink);
+  font-family: var(--display); font-size: 17px; color: var(--ink);
 }
 summary::-webkit-details-marker{ display: none; }
 summary::after{
@@ -262,9 +259,11 @@ details[open] summary::after{ transform: rotate(45deg); }
 summary:hover{ color: var(--orange); }
 details .content{ padding: 0 0 24px; color: var(--muted); max-width: var(--text); }
 details .content p:last-child{ margin-bottom: 0; }
-.qa summary{ font-size: 15px; padding: 16px 0; }
-.qa .content{ font-size: 16px; }
-.qa .content ol, .qa .content ul{ margin: 8px 0 0; padding-left: 22px; }
+.qa{ border-top: 1px solid var(--hair); }
+.qaList{ display: grid; gap: 26px; padding: 6px 0 30px; max-width: var(--text); }
+.qaQ{ font-family: var(--display); font-size: 17px; color: var(--ink); margin-bottom: 6px; }
+.qaA{ color: var(--muted); font-size: 16px; }
+.qaA ol, .qaA ul{ margin: 8px 0 0; padding-left: 22px; }
 
 /* ---------- footer ---------- */
 footer{
@@ -423,13 +422,20 @@ body.noScroll{ overflow: hidden; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1000px){
-  .heroGrid{ grid-template-columns: 1fr; gap: 40px; }
-  .poster{ width: 100%; max-width: 420px; margin: 0 auto; }
-  .heroText{ text-align: center; }
-  .heroText .lead, .logoHero{ margin-inline: auto; }
-  .meta li{ flex-direction: column; gap: 2px; align-items: center; }
-  .meta span:first-child{ flex-basis: auto; }
-  .hero .actions{ justify-content: center; }
+  /* The hero grows with its text here, so a backdrop would expose the poster's
+     baked-in type. Show the cropped poster figure above the text instead. */
+  .hero{ min-height: 0; background: none; padding-top: 40px; }
+  .hero::before{ background: radial-gradient(70% 40% at 50% 30%, rgba(168,54,43,.30) 0%, rgba(168,54,43,0) 70%); }
+  .heroGrid{ display: grid; grid-template-columns: 1fr; gap: 40px; padding-bottom: 20px; }
+  .poster{
+    display: block; position: relative; margin: 0 auto; width: 100%; max-width: 420px;
+    aspect-ratio: 4 / 5; overflow: hidden;
+  }
+  /* Offsets are tuned to the current artwork; revisit when the poster changes. */
+  .poster img{ position: absolute; display: block; max-width: none; width: 200%; height: auto; left: -50%; top: -41%; }
+  .poster::after{ content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 80px 50px var(--bg); }
+  .meta li{ gap: 14px; }
+  .meta span:first-child{ flex-basis: 80px; }
   .stats{ grid-template-columns: 1fr 1fr; row-gap: 30px; }
   .cols{ grid-template-columns: 1fr; gap: 40px; }
   .prices{ grid-template-columns: 1fr; gap: 30px; }
