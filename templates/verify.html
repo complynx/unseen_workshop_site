@@ -6,20 +6,18 @@
   <title>Verify email • UNSEEN</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
 </head>
 <body>
   <header>
-    <div class="wrap">
-      <div class="nav">
-        <div class="brand">
-          <img class="brandLogo" src="{{ static_url('unseen_logo_simple_plain.svg') }}" alt="UNSEEN logo">
-        </div>
-        <div class="cta">
-          <a class="btn" href="{{ base_path or '/' }}">Home</a>
-          <a class="btn" href="{{ base_path }}/login">Login</a>
-        </div>
+    <div class="wrap nav">
+      <a class="brand" href="{{ base_path or '/' }}" aria-label="UNSEEN home">
+        <img src="{{ static_url('unseen_logo_simple_plain.svg') }}" alt="UNSEEN logo">
+      </a>
+      <div class="cta">
+        <a class="textlink" href="{{ base_path or '/' }}">home</a>
+        <a class="btn" href="{{ base_path }}/login">login</a>
       </div>
     </div>
   </header>
@@ -27,42 +25,40 @@
   <main>
     <section class="pageSection">
       <div class="wrap authWrap">
-        <div class="card authCard">
-          <h2>Email verification</h2>
-          <p class="fineprint">Enter the verification code sent to your email.</p>
-
-          {% if error %}
-          <div class="alert">{{ error }}</div>
-          {% end %}
-          {% if success %}
-          <div class="alert" style="border-color: rgba(0,194,120,.35); background: rgba(0,194,120,.08); color: #b3ffdf;">
-            {{ success }}
-          </div>
-          {% end %}
-
-          {% if not success %}
-          <form method="post" action="{{ base_path }}/verify">
-            <div>
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" required value="{{ email or '' }}">
-            </div>
-            <div>
-              <label for="code">Verification code</label>
-              <input type="text" id="code" name="code" required placeholder="8-character code" value="{{ code or '' }}">
-            </div>
-            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px; flex-wrap:wrap;">
-              <a class="btn" href="{{ base_path }}/login">Back to login</a>
-              <button class="btn" type="submit" formaction="{{ base_path }}/verify/resend" formmethod="post" formnovalidate {% if resend_cooldown_seconds %}disabled data-cooldown="{{ resend_cooldown_seconds }}"{% end %}>Resend code</button>
-              <button class="btn primary" type="submit">Verify</button>
-            </div>
-            <div class="fineprint" data-cooldown-timer style="text-align:right; min-height:18px;"></div>
-          </form>
-          {% else %}
-          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
-            <a class="btn primary" href="{{ base_path }}/login">Continue to login</a>
-          </div>
-          {% end %}
+        <div class="pageTitle">
+          <h1>Email verification</h1>
         </div>
+        <p class="fineprint">Enter the verification code sent to your email.</p>
+
+        {% if error %}
+        <div class="alert">{{ error }}</div>
+        {% end %}
+        {% if success %}
+        <div class="alert ok">{{ success }}</div>
+        {% end %}
+
+        {% if not success %}
+        <form method="post" action="{{ base_path }}/verify">
+          <div>
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required value="{{ email or '' }}">
+          </div>
+          <div>
+            <label for="code">Verification code</label>
+            <input type="text" id="code" name="code" required placeholder="8-character code" value="{{ code or '' }}">
+          </div>
+          <div class="formActions">
+            <a class="btn ghost" href="{{ base_path }}/login">back to login</a>
+            <button class="btn" type="submit" formaction="{{ base_path }}/verify/resend" formmethod="post" formnovalidate {% if resend_cooldown_seconds %}disabled data-cooldown="{{ resend_cooldown_seconds }}"{% end %}>resend code</button>
+            <button class="btn primary" type="submit">verify</button>
+          </div>
+          <div class="fineprint" data-cooldown-timer style="text-align:right; min-height:18px;"></div>
+        </form>
+        {% else %}
+        <div class="formActions">
+          <a class="btn primary" href="{{ base_path }}/login">continue to login</a>
+        </div>
+        {% end %}
       </div>
     </section>
   </main>

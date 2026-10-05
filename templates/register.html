@@ -6,7 +6,7 @@
   <title>Register • UNSEEN</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
   {% if recaptcha_enabled %}
   <script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
@@ -14,27 +14,29 @@
 </head>
 <body>
   <header>
-    <div class="wrap">
-      <div class="nav">
-        <div class="brand">
-          <img class="brandLogo" src="{{ static_url('unseen_logo_simple_plain.svg') }}" alt="UNSEEN logo">
-        </div>
-        <div class="cta">
-          <a class="btn" href="{{ base_path or '/' }}">Home</a>
-          <a class="btn" href="{{ base_path }}/login">Login</a>
-        </div>
+    <div class="wrap nav">
+      <a class="brand" href="{{ base_path or '/' }}" aria-label="UNSEEN home">
+        <img src="{{ static_url('unseen_logo_simple_plain.svg') }}" alt="UNSEEN logo">
+      </a>
+      <div class="cta">
+        <a class="textlink" href="{{ base_path or '/' }}">home</a>
+        <a class="btn" href="{{ base_path }}/login">login</a>
       </div>
     </div>
   </header>
 
   <main>
     <section class="pageSection">
-      <div class="wrap applyGrid">
-        <div class="card">
-          <h3>Open registration</h3>
-          <p>You can apply for the <a href="{{ base_path or '/' }}">UNSEEN blindfolded workshop</a> here. Please register carefully; we may check ID on arrival.</p>
-          <p>The venue is already booked within Amsterdam, close to the center. The exact address is shared only with confirmed participants for privacy and safety.</p>
-          <p class="fineprint">Applications are background-checked for safety and balance. We will try to maximize openness and inclusivity, but we may still reject an application for any reason, with or without explanation.</p>
+      <div class="wrap">
+        <div class="pageTitle">
+          <div class="kicker">open registration</div>
+          <h1>Apply for the workshop</h1>
+        </div>
+      <div class="applyGrid">
+        <div>
+          <p>Apply here for the <a href="{{ base_path or '/' }}">UNSEEN blindfold workshop</a>. Register carefully, we may check your ID at the door.</p>
+          <p>The venue is booked, in Amsterdam near the centre. We share the address only with confirmed participants.</p>
+          <p class="fineprint">We check applications for safety and role balance. We aim to be open, but we may decline any application, with or without explanation.</p>
 
           {% if errors %}
           <div class="alert">
@@ -114,7 +116,7 @@
               </div>
             </div>
 
-            <div id="partnerFields" class="partnerFields" {% if not values.get('want_partner') %}style="display:none;"{% end %}>
+            <div id="partnerFields" class="partnerFields" {% if not values.get('want_partner') %}hidden{% end %}>
               <div class="formRow">
                 <div>
                   <label for="partner_name">Partner name</label>
@@ -125,7 +127,7 @@
                   <input type="text" id="partner_contact" name="partner_contact" value="{{ values.get('partner_contact','') }}">
                 </div>
               </div>
-              <p class="fineprint">We will try to keep partner requests together when possible, but safety and role balance come first.</p>
+              <p class="fineprint">We try to keep partners together, but safety and role balance come first.</p>
             </div>
 
             <div>
@@ -136,7 +138,7 @@
             <div class="checkboxRow">
               <label>
                 <input type="checkbox" name="accept_rules" value="true" {% if values.get('accept_rules') %}checked{% end %} required>
-                <span>I accept the workshop rules and Code of Conduct (safety-first, blindfold rules, sober policy) and confirm I have read the <a href="{{ base_path or '/' }}#safety">safety rules</a>.</span>
+                <span>I accept the workshop rules (blindfold rules, sober policy) and I have read the <a href="{{ base_path or '/' }}#safety">safety rules</a>.</span>
               </label>
             </div>
 
@@ -148,25 +150,26 @@
             </div>
 
             <input type="hidden" name="recaptcha_token" id="recaptcha_token" value="">
-            <p class="fineprint">After submitting, you will receive an email verification code. After verification, your application will stay pending until manual review is complete.</p>
+            <p class="fineprint">After you submit, we email you a verification code. Once verified, your application waits for our review.</p>
 
-            <div style="display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
-              <a class="btn" href="{{ base_path or '/' }}">Cancel</a>
-              <button class="btn primary" type="submit" id="registration-submit">Submit application</button>
+            <div class="formActions">
+              <a class="btn ghost" href="{{ base_path or '/' }}">cancel</a>
+              <button class="btn primary" type="submit" id="registration-submit">submit application</button>
             </div>
           </form>
         </div>
 
         <div class="card" id="safety">
-          <h3>Safety-first container</h3>
-          <ul>
-            <li>Bring a government-issued ID that matches the name above. For safety we may check it at arrival.</li>
-            <li>Role balance is managed manually. If you apply with a partner, both must be opposite roles.</li>
-            <li>Sober policy applies. No alcohol or recreational drugs before or during the event.</li>
-            <li>Blindfold block is silent; safety exceptions exist. Read the safety section on the main page.</li>
+          <h3>Before you apply</h3>
+          <ul class="dots">
+            <li>Bring a government ID with the name you register. We may check it at the door.</li>
+            <li>We balance roles by hand. If you apply with a partner, you need opposite roles.</li>
+            <li>Come sober. No alcohol or recreational drugs before or during the event.</li>
+            <li>The blindfold block is silent, with safety exceptions. Read the safety rules on the main page.</li>
           </ul>
           <p class="fineprint">Questions? Message the organizer directly.</p>
         </div>
+      </div>
       </div>
     </section>
   </main>
@@ -176,7 +179,7 @@
     const partnerFields = document.getElementById('partnerFields');
     if (partnerCheckbox) {
       partnerCheckbox.addEventListener('change', () => {
-        partnerFields.style.display = partnerCheckbox.checked ? 'block' : 'none';
+        partnerFields.hidden = !partnerCheckbox.checked;
       });
     }
 
