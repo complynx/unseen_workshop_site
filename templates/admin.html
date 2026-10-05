@@ -6,21 +6,19 @@
   <title>Admin • UNSEEN</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ static_url('unseen.css') }}">
 </head>
 <body>
   <header>
-    <div class="wrap">
-      <div class="nav">
-        <div class="brand">
-          <img class="brandLogo" src="{{ static_url('unseen_logo_simple_plain.svg') }}" alt="UNSEEN logo">
-        </div>
-        <div class="cta">
-          <form method="post" action="{{ base_path }}/logout">
-            <button class="btn" type="submit">Logout</button>
-          </form>
-        </div>
+    <div class="wrap nav">
+      <a class="brand" href="{{ base_path or '/' }}" aria-label="UNSEEN home">
+        <img src="{{ static_url('unseen_logo_simple_plain.svg') }}" alt="UNSEEN logo">
+      </a>
+      <div class="cta">
+        <form method="post" action="{{ base_path }}/logout">
+          <button class="btn" type="submit">logout</button>
+        </form>
       </div>
     </div>
   </header>
@@ -28,7 +26,7 @@
   <main>
     <section class="pageSection">
       <div class="wrap dashGrid adminGrid">
-        <div class="card balanceCard" style="grid-column: 1 / -1;">
+        <div class="card balanceCard">
           <h3>Balance</h3>
           <p class="fineprint">Leaders / Followers by application stage</p>
           <div class="balanceGrid">
@@ -63,7 +61,7 @@
           </div>
         </div>
 
-        <div class="card" style="grid-column: 1 / -1;">
+        <div class="card">
           <h3>Applications</h3>
           <div class="tableToolbar">
             <button class="btn ghost" type="button" id="toggle-cancelled-applications" aria-pressed="false">Show rejected</button>
@@ -104,7 +102,7 @@
                   <span class="statusBadge success">Confirmed</span>
                 {% end %}
               </div>
-              <div class="rowActions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <div class="rowActions">
                 {% if reg_cancelled %}
                 <form method="post" action="{{ base_path }}/admin/applications/{{ reg.get('_id') }}/status">
                   <input type="hidden" name="action" value="restore">
@@ -112,7 +110,7 @@
                 </form>
                 {% else %}
                 {% if reg_review_confirmed %}
-                <form method="post" action="{{ base_path }}/admin/applications/{{ reg.get('_id') }}/confirm" style="display:flex; gap:8px;">
+                <form method="post" action="{{ base_path }}/admin/applications/{{ reg.get('_id') }}/confirm">
                   {% if reg_review_confirmed and not reg_payment_confirmed %}
                   <button class="btn primary" name="action" value="confirm_paid" type="submit">Confirm paid</button>
                   {% end %}
